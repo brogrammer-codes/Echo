@@ -12,15 +12,16 @@ datasource db {
 }
 
 model Post {
-    id          String   @id @default(cuid())
-    createdAt   DateTime @default(now())
-    title       String   @db.VarChar(255)
-    url         String   @db.VarChar(255)
-    description String   @db.VarChar(255)
+    id          String    @id @default(cuid())
+    createdAt   DateTime  @default(now())
+    title       String    @db.VarChar(255)
+    url         String    @db.VarChar(255)
+    description String    @db.VarChar(255)
     authorId    String
-    echo        Echo     @relation(fields: [echoId], references: [id])
+    echo        SubEcho   @relation(fields: [echoId], references: [id])
     echoId      String
     likes       Like[]
+    comments    Comment[]
 
     @@index([authorId])
     @@index([echoId])
@@ -36,12 +37,27 @@ model Like {
     @@index([postId])
 }
 
-model Echo {
+model SubEcho {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
-    title     String   @db.VarChar(50)
+    title     String   @unique @db.VarChar(50)
     authorId  String
-    Post      Post[]
+    post      Post[]
 
     @@index([authorId])
+}
+
+model Comment {
+    id              String    @id @default(cuid())
+    createdAt       DateTime  @default(now())
+    authorId  String
+    content         String    @db.VarChar(255)
+    postId          String
+    post            Post      @relation(fields: [postId], references: [id])
+    parentCommentId String?
+    parentComment   Comment?  @relation("ChildComment", fields: [parentCommentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    childComments   Comment[] @relation("ChildComment")
+
+    @@index([postId])
+    @@index([parentCommentId])
 }
