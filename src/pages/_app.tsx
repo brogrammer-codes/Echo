@@ -5,6 +5,7 @@ import Head from "next/head";
 import { PageLayout } from "~/components/layout";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "~/components/header";
+import { Toaster } from "react-hot-toast";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -16,6 +17,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       </Head>
       <PageLayout>
         <Header />
+        <Toaster position="bottom-center" />
         <Component {...pageProps} />
       </PageLayout>
     </ClerkProvider>

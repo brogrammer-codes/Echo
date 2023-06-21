@@ -14,7 +14,7 @@ datasource db {
 model Post {
     id          String    @id @default(cuid())
     createdAt   DateTime  @default(now())
-    title       String    @db.VarChar(255)
+    title       String    @db.VarChar(100)
     url         String    @db.VarChar(255)
     description String    @db.VarChar(255)
     authorId    String
@@ -41,6 +41,7 @@ model SubEcho {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     title     String   @unique @db.VarChar(50)
+    description String   @default("") @db.VarChar(255)
     authorId  String
     post      Post[]
 
