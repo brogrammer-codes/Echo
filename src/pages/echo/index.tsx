@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {
-        data.map((echo) => <span>e/{echo.title}</span>)
+        data.map((echo) => <span key={echo.id}>e/{echo.title}</span>)
       }
     </div>
   );
