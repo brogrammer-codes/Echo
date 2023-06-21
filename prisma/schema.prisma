@@ -1,18 +1,64 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+generator client {
+    provider = "prisma-client-js"
+}
+
 datasource db {
     provider     = "mysql"
     url          = env("DATABASE_URL")
     relationMode = "prisma"
 }
 
-generator client {
-    provider = "prisma-client-js"
+model Post {
+    id          String    @id @default(cuid())
+    createdAt   DateTime  @default(now())
+    title       String    @db.VarChar(100)
+    url         String    @db.VarChar(255)
+    description String    @db.VarChar(255)
+    authorId    String
+    echo        SubEcho   @relation(fields: [echoId], references: [id])
+    echoId      String
+    likes       Like[]
+    comments    Comment[]
+
+    @@index([authorId])
+    @@index([echoId])
 }
 
-model Example {
+model Like {
+    id        String   @id @default(cuid())
+    post      Post     @relation(fields: [postId], references: [id])
+    postId    String
+    userId    String
+    createdAt DateTime @default(now())
+
+    @@index([postId])
+}
+
+model SubEcho {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    title     String   @unique @db.VarChar(50)
+    description String   @default("") @db.VarChar(255)
+    authorId  String
+    post      Post[]
+
+    @@index([authorId])
+}
+
+model Comment {
+    id              String    @id @default(cuid())
+    createdAt       DateTime  @default(now())
+    authorId  String
+    content         String    @db.VarChar(255)
+    postId          String
+    post            Post      @relation(fields: [postId], references: [id])
+    parentCommentId String?
+    parentComment   Comment?  @relation("ChildComment", fields: [parentCommentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    childComments   Comment[] @relation("ChildComment")
+
+    @@index([postId])
+    @@index([parentCommentId])
 }
