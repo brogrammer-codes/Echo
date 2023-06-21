@@ -68,7 +68,7 @@ export default function Home() {
     <div className="flex flex-col">
       <CreatePostWizard />
       {
-        data.map((post) => <Post {...post} />)
+        data.map((post) => <Post key={post.id} {...post} />)
       }
     </div>
   );

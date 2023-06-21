@@ -7,6 +7,6 @@ export const Header = () => {
     console.log(user);
     
   return (
-    <nav>{user  ? `Welcome, ${user.username}` : `Welcome to Echo`}{isSignedIn ? <SignOutButton /> : <SignInButton />}</nav>
+    <nav>{user && user.username ? `Welcome, ${user.username}` : `Welcome to Echo`}{isSignedIn ? <SignOutButton /> : <SignInButton />}</nav>
   )
 }
