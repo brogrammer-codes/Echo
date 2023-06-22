@@ -51,7 +51,6 @@ const EchoSpaceCreateWizard = () => {
 
 export default function Home() {
   const { data, isLoading } = api.subEcho.getAll.useQuery()
-  console.log(isLoading, data);
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load Echos</div>
   return (
@@ -59,10 +58,10 @@ export default function Home() {
       <EchoSpaceCreateWizard />
       {
         data.map((echo) => (
-          <Link href={`/echo/${echo.title}`}>
+          <Link key={echo.id} href={`/echo/${echo.title}`}>
             <div className="flex flex-col p-2 m-1 bg-slate-800 rounded hover:cursor-pointer space-y-2">
-              <span key={echo.id} className="font-bold text-2xl">e/{echo.title}</span>
-              <span key={echo.id} className="font-medum text-lg">{echo.description}</span>
+              <span  className="font-bold text-2xl">e/{echo.title}</span>
+              <span className="font-medum text-lg">{echo.description}</span>
               <span className="text-sm italic">{`Created: ${dayjs(echo.createdAt).format('DD/MM/YYYY')}`}</span>
             </div>
           </Link>

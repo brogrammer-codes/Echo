@@ -5,7 +5,6 @@ import { api } from "~/utils/api";
 
 export default function Home() {
   const {data, isLoading} = api.subEcho.getAll.useQuery()
-  console.log(isLoading, data);
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load Echos</div>
   return (
