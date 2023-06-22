@@ -19,6 +19,7 @@ const CreatePostWizard = () => {
   const { mutate } = api.posts.create.useMutation({
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
+      setShowInputForm(false)
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors

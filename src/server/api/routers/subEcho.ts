@@ -1,10 +1,10 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
 
 export const subEchoRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.subEcho.findMany()
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.subEcho.findMany()
   }),
   getSubEchoByName: publicProcedure
     .input(z.object({ name: z.string().min(1).max(50) }))
@@ -19,5 +19,14 @@ export const subEchoRouter = createTRPCRouter({
       const subEcho = await ctx.prisma.subEcho.findUnique({where: { id: input.id}})
       if(!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
       return subEcho
+    }),
+    create: privateProcedure.input(z.object({ title: z.string().min(1).max(100), description:z.string().max(50).optional()})).mutation(async ({ ctx, input }) => {
+      const userId = ctx.userId
+      const {title, description = ''} = input
+      const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: title.toLocaleLowerCase() } });
+      if(subEcho) throw new TRPCError({ code: "CONFLICT", message: "Echo Space with the same name exists" });
+      const echo = await ctx.prisma.subEcho.create({data: {title: title.toLocaleLowerCase(), authorId: userId, description}})
+      return echo
+      
     }),
 });
