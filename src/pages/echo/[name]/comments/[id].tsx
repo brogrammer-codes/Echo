@@ -35,7 +35,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
           <div className="flex flex-col">
 
             {
-              !isLoading ? post.comments?.map((comment) => <span>{comment.content}</span>) : <LoadingPage />
+              !isLoading ? post.comments?.map((comment) => <span key={comment.id}>{comment.content}</span>) : <LoadingPage />
             }
           </div>
         </div>
