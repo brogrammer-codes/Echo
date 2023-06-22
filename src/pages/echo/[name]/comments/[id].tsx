@@ -12,6 +12,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
   const post = data && data.length ? data[0] : null
   if (isLoading) return <LoadingPage />
   if (!post) return <div>Could not load Post</div>
+  const {data: echo } = api.subEcho.getSubEchoById.useQuery({id: post.echoId})
   const PostLink = () => {
     return (
       <Link href={post.url} className="flex w-5 ml-4" target={'_blank'}>
@@ -38,8 +39,11 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
             }
           </div>
         </div>
-        <div className="hidden md:flex w-1/3">
-          <span>{`${post.likes.length} Echos`}</span>
+        <div className="hidden md:flex w-1/3 flex-col space-y-2">
+          <span>{`Post has ${post.likes.length} Echos`}</span>
+          <span>Echo </span>
+          <span>{echo?.title}</span>
+          <span>{echo?.description}</span>
         </div>
       </div>
     </>
