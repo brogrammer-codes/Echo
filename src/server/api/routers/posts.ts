@@ -43,7 +43,12 @@ export const postRouter = createTRPCRouter({
       if (!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
       return subEcho
     }),
-  create: privateProcedure.input(z.object({ title: z.string().min(1).max(100), url: z.string().url("Enter a URL").max(255).optional(), echo: z.string().min(1).max(50), description:z.string().max(50).optional()})).mutation(async ({ ctx, input }) => {
+  create: privateProcedure.input(z.object({ 
+      title: z.string().min(1).max(100), 
+      url: z.string().url("Enter a URL").max(255).optional(), 
+      echo: z.string().min(1).max(50), 
+      description:z.string().max(255).optional()}
+    )).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
     const {title, url = '', echo, description = ''} = input
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: echo } });
