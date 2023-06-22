@@ -36,12 +36,13 @@ export const postRouter = createTRPCRouter({
     const mappedPosts = getMappedPosts(posts, ctx)
     return mappedPosts
   }),
-  getSubEchoByName: publicProcedure
-    .input(z.object({ name: z.string().min(1).max(50) }))
+  getPostsByEchoId: publicProcedure
+    .input(z.object({ echoId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
-      const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: input.name } })
-      if (!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
-      return subEcho
+      const subPosts = await ctx.prisma.post.findMany({ where: { echoId: input.echoId } })
+      if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
+      const mappedPosts = getMappedPosts(subPosts, ctx)
+      return mappedPosts
     }),
   create: privateProcedure.input(z.object({ 
       title: z.string().min(1).max(100), 
