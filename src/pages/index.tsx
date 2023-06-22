@@ -6,7 +6,30 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Button, Input, Textarea } from "~/components/atoms";
 import toast from "react-hot-toast";
+import { typeToFlattenedError } from "zod";
 
+
+const showError = (e: typeToFlattenedError<any, string>) => {
+  const errorMessage = e.fieldErrors
+  const title = errorMessage?.title
+  const echo = errorMessage?.echo
+  const description = errorMessage?.description
+  const url = errorMessage?.url
+  if (url && url[0]) {
+    toast.error(url[0])
+  } if(title && title[0]) {
+    toast.error(title[0])
+    
+  } if(echo && echo[0]) {
+    toast.error(echo[0])
+    
+  } if(description && description[0]) {
+    toast.error(description[0])
+  } 
+  else {
+    toast.error("Failed to post")
+  }
+}
 
 const CreatePostWizard = () => {
   const { user } = useUser()
@@ -22,25 +45,9 @@ const CreatePostWizard = () => {
       setShowInputForm(false)
     },
     onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors
-      let title = errorMessage?.title
-      let echo = errorMessage?.echo
-      let description = errorMessage?.description
-      let url = errorMessage?.url
-      if (url && url[0]) {
-        toast.error(url[0])
-      } if(title && title[0]) {
-        toast.error(title[0])
-        
-      } if(echo && echo[0]) {
-        toast.error(echo[0])
-        
-      } if(description && description[0]) {
-        toast.error(description[0])
-      } 
-      else {
-        toast.error("Failed to post")
-      }
+      if(e.message) toast.error(e.message)
+      const errorMessage = e.data?.zodError
+      if(errorMessage) showError(errorMessage)
     }
   })
   if (!user) return null
