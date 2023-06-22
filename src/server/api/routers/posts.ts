@@ -44,6 +44,14 @@ export const postRouter = createTRPCRouter({
       const mappedPosts = getMappedPosts(subPosts, ctx)
       return mappedPosts
     }),
+  getPostsById: publicProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const subPosts = await ctx.prisma.post.findUnique({ where: { id: input.id } })
+      if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
+      const mappedPosts = getMappedPosts([subPosts], ctx)
+      return mappedPosts
+    }),
   create: privateProcedure.input(z.object({ 
       title: z.string().min(1).max(100), 
       url: z.string().url("Enter a URL").max(255).optional(), 

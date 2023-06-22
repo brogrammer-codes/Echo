@@ -34,7 +34,7 @@ export const Post = (props: PostWithUser) => {
     <div className="flex flex-row p-8 border-b border-slate-400 p-4 gap-3">
 
       <div className="flex flex-col gap-3 w-5/6">
-        <Link href={props.url ? props.url : `/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank">
+        <Link href={props.url ? props.url : `/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target={props.url ? "_blank" : "_self"}>
           <span className="font-bold text-4xl">{props.title}</span>
         </Link>
         <span className="font-semibold text-sm">
