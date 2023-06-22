@@ -21,8 +21,8 @@ const EchoSpaceCreateWizard = () => {
     },
     onError: (e) => {      
       const errorMessage = e.data?.zodError?.fieldErrors
-      let title = errorMessage?.title
-      let description = errorMessage?.echo
+      const title = errorMessage?.title
+      const description = errorMessage?.echo
       if(e.message) toast.error(e.message)
       if (title && title[0]) {
         toast.error(title[0])
