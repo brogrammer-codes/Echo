@@ -6,6 +6,9 @@ export const subEchoRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.subEcho.findMany()
   }),
+  getHeaderEcho: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.subEcho.findMany({take: 5})
+  }),
   getSubEchoByName: publicProcedure
     .input(z.object({ name: z.string().min(1).max(50) }))
     .query(async ({ ctx, input }) => {      
