@@ -9,43 +9,36 @@ import { Button, Textarea } from "~/components/atoms";
 import { useRef } from "react";
 import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
+import dayjs from "dayjs";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+import Image from "next/image";
+import EchoButton from "~/components/atoms/echoButton";
+dayjs.extend(relativeTime);
 
 type PostComments = RouterOutputs['posts']['getPostsById'][number]['comments']
-const CommentNode = (props: {comments: PostComments, comment: PostComments[0]}) => {
-  const childComments = props.comments.filter((c) => c.parentCommentId === props.comment.parentCommentId)
-  return (
-    <div className="flex">
 
-    </div>
-  )
-}
-const CommentTree = (props: PostComments) => {
-  if(props && props.length) {
-    const rootComments = props.filter((comment) => !comment.parentCommentId)
-    return (
-      <div className="flex w-full">
-        {
-          rootComments.map((root) => <CommentNode comment={root} comments={props}/>)
-        }
-      </div>
-    )
-  }
-  // return props.map((comment) => <span key={comment.id}>{comment.content}</span>)
-}
-
-function displayCommentTree(comments: PostComments, parentId:string | null = null, indent = 0) {
+function displayCommentTree(comments: PostComments, parentId: string | null = null, indent = 0) {
   const parentComments = comments.filter((comment) => comment.parentCommentId === parentId);
-  
+
   return (
     <ul className={`ml-${indent} p-1`}>
       {parentComments.map((comment) => {
-        const { id, content, authorId } = comment;
+        const { id, content, author, createdAt } = comment;
 
         return (
           <li key={id} className="mb-4">
             <div className="bg-slate-950 p-2 rounded">
-              <p>{content}</p>
-              <span>Reply</span>
+              <div className="text-sm">
+                <span className="font-bold">
+
+                  {author.username}
+                </span>
+                <span className="font-thin">{` · ${dayjs(createdAt).fromNow()}`}</span></div>
+              <p className="font-normal text-lg">{content}</p>
+              <div className="text-xs font-bold">
+                <span>Reply</span>
+              </div>
             </div>
             {displayCommentTree(comments, id, indent + 1)}
           </li>
@@ -64,6 +57,19 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
   if (isLoading) return <LoadingPage />
   if (!post) return <div>Could not load Post</div>
   const { data: echo } = api.subEcho.getSubEchoById.useQuery({ id: post.echoId })
+  const {mutate: mutateLikePost, isLoading: likeLoading} = api.posts.likePost.useMutation({
+    onSuccess: () => {
+      void ctx.posts.getAll.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0])
+      } else {
+        toast.error("Failed to post")
+      }
+    }
+  })
   const { mutate } = api.posts.addComment.useMutation({
     onSuccess: () => {
       if (commentRef?.current?.value) commentRef.current.value = ''
@@ -84,9 +90,13 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
     )
   }
   const submitPostComment = (parentId: string | undefined = undefined) => {
-    if(commentRef.current) {
-      mutate({postId: id, content: commentRef.current.value, parentCommentId: parentId})
+    if (commentRef.current) {
+      mutate({ postId: id, content: commentRef.current.value, parentCommentId: parentId })
     }
+  }
+  const likePost = () => {
+    if(!user) toast.error("You need to sign in to echo a post!")
+    else  mutateLikePost({postId: id})
   }
   return (
     <>
@@ -96,11 +106,15 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full md:w-2/3 p-2">
           <h1 className="flex font-bold text-2xl">{post.title} {post.url && <PostLink />}</h1>
+          <div className="flex text-sm font-thin space-x-3 align-middle"><Image alt="profile image" src={post.user.profileImageUrl} width={56} height={56}  className="h-8 w-8 rounded-full"/><span className="inline-block align-middle font-bold">{post.user.username}</span><span className="font-thin">{` · ${dayjs(post.createdAt).fromNow()}`}</span></div>
           <span>{post.description}</span>
           {user && (
-            <div>
+            <div className="flex flex-row space-x-2 py-3 px-1">
               <Textarea inputRef={commentRef} />
-              <Button buttonText="Submit Comment" onClick={() => submitPostComment()}/>
+              <div className="h-fit">
+
+              <Button buttonText="Submit Comment" onClick={() => submitPostComment()} />
+              </div>
             </div>
           )}
           <div className="flex flex-col">
