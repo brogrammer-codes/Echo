@@ -7,7 +7,7 @@ type EchoButtonProps = {
   likes: number
 }
 
-const EchoButton = ({ postLikedByUser, likePost, isLoading, likes= 0 }: EchoButtonProps) => {
+export const EchoButton = ({ postLikedByUser, likePost, isLoading, likes= 0 }: EchoButtonProps) => {
   return (
     <div className='flex w-1/6 flex-col'>
 
@@ -25,5 +25,3 @@ const EchoButton = ({ postLikedByUser, likePost, isLoading, likes= 0 }: EchoButt
             </div>
   )
 }
-
-export default EchoButton

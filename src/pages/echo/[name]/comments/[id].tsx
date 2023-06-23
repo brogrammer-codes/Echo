@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import EchoButton from "~/components/atoms/echoButton";
+import { EchoButton } from "~/components/molecules";
 import { usePost } from "~/hooks";
 import { CreateCommentWizard } from "~/components/createCommentWizard";
 import { DisplayCommentTree } from "~/components/commentTree";
@@ -41,7 +41,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
     )
   }
   const submitPostComment = (content: string, parentId: string | undefined = undefined) => {
-      addComment({ postId: id, content, parentCommentId: parentId })
+    addComment({ postId: id, content, parentCommentId: parentId })
   }
   const likePostOnClick = () => {
     if (!user) toast.error("You need to sign in to echo a post!")
@@ -69,7 +69,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
           <div className="flex flex-col">
 
             {
-              post.comments.length ? !postLoading ? <DisplayCommentTree comments={post.comments} parentId={null}  indent={0} submitPostComment={submitPostComment} /> : <LoadingPage /> : null
+              post.comments.length ? !postLoading ? <DisplayCommentTree comments={post.comments} parentId={null} indent={0} submitPostComment={submitPostComment} /> : <LoadingPage /> : null
             }
           </div>
         </div>

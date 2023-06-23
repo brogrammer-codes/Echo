@@ -3,7 +3,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { api, RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
-import EchoButton from "./atoms/echoButton";
+import { EchoButton } from "./molecules";
 
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
@@ -11,7 +11,7 @@ export const Post = (props: PostWithUser) => {
   const { user } = useUser()
   const ctx = api.useContext()
 
-  const {mutate, isLoading} = api.posts.likePost.useMutation({
+  const { mutate, isLoading } = api.posts.likePost.useMutation({
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
     },
@@ -28,8 +28,8 @@ export const Post = (props: PostWithUser) => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
   const likePost = () => {
-    if(!user) toast.error("You need to sign in to echo a post!")
-    else  mutate({postId: props.id})
+    if (!user) toast.error("You need to sign in to echo a post!")
+    else mutate({ postId: props.id })
   }
   return (
     <div className="flex flex-row p-8 border-b border-slate-400 p-4 gap-3">
@@ -48,7 +48,7 @@ export const Post = (props: PostWithUser) => {
         </div>
       </div>
       <div className="flex w-1/6 flex-col">
-        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePost} isLoading={isLoading} likes={props.likes.length}/>
+        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePost} isLoading={isLoading} likes={props.likes.length} />
       </div>
     </div>
   )

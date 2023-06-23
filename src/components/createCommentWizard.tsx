@@ -13,27 +13,27 @@ import dayjs from "dayjs";
 
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import EchoButton from "~/components/atoms/echoButton";
+import { EchoButton } from "~/components/molecules";
 import { usePost } from "~/hooks";
 dayjs.extend(relativeTime);
 
 interface CreateCommentWizardProps {
     submitComment: (content: string) => void;
     commentLoading: boolean;
-  }
-  export const CreateCommentWizard = ({ submitComment, commentLoading }: CreateCommentWizardProps) => {
+}
+export const CreateCommentWizard = ({ submitComment, commentLoading }: CreateCommentWizardProps) => {
     const { user } = useUser()
     const commentRef = useRef<HTMLTextAreaElement>(null)
-    if(!user) return null
+    if (!user) return null
     const createComment = () => {
-      if(commentRef.current) submitComment(commentRef.current.value)
+        if (commentRef.current) submitComment(commentRef.current.value)
     }
     return (
-      <div className="flex flex-row space-x-2 py-3 px-1">
-        <Textarea inputRef={commentRef} />
-        <div className="h-fit">
-          <Button buttonText="Submit Comment" onClick={createComment} disabled={commentLoading} />
+        <div className="flex flex-row space-x-2 py-3 px-1">
+            <Textarea inputRef={commentRef} />
+            <div className="h-fit">
+                <Button buttonText="Submit Comment" onClick={createComment} disabled={commentLoading} />
+            </div>
         </div>
-      </div>
     )
-  }
+}

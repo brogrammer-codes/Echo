@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import EchoButton from "~/components/atoms/echoButton";
+import { EchoButton } from "~/components/molecules";
 import { usePost } from "~/hooks";
 import { CreateCommentWizard } from "./createCommentWizard";
 dayjs.extend(relativeTime);
@@ -71,7 +71,7 @@ export const DisplayCommentTree = (props: DisplayCommentTreeProps) => {
   const { user } = useUser()
   return (
     <ul className={`ml-${indent * 3} p-1`}>
-      {parentComments.map((comment) => <CommentLeaf key={`comment-${comment.id}-parent-${parentId || ''}`} comment={comment} {...props}/>)}
+      {parentComments.map((comment) => <CommentLeaf key={`comment-${comment.id}-parent-${parentId || ''}`} comment={comment} {...props} />)}
     </ul>
   );
 }
