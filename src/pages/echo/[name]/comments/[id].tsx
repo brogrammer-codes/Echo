@@ -15,79 +15,10 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import EchoButton from "~/components/atoms/echoButton";
 import { usePost } from "~/hooks";
+import { CreateCommentWizard } from "~/components/createCommentWizard";
+import { DisplayCommentTree } from "~/components/commentTree";
 dayjs.extend(relativeTime);
 
-type PostComments = RouterOutputs['posts']['getPostsById'][number]['comments']
-interface displayCommentTreeProps {
-  comments: PostComments,
-  parentId: string | null,
-  indent: number,
-  submitPostComment: (comment: string, parentId?: string | undefined) => void,
-}
-function DisplayCommentTree(props: displayCommentTreeProps) {
-  const { comments, parentId, indent, submitPostComment } = props
-  const parentComments = comments.filter((comment) => comment.parentCommentId === parentId);
-  const { user } = useUser()
-  return (
-    <ul className={`ml-${indent * 3} p-1`}>
-      {parentComments.map((comment) => {
-        const { id, content, author, createdAt } = comment;
-        const [showReplyWizard, setShowReplyWizard] = useState<boolean>(false)
-        const toggleReply = () => setShowReplyWizard((current) => !current)
-        
-        const createComment = (comment: string) => {
-          submitPostComment(comment,  id)
-          toggleReply()
-        }
-        
-        return (
-          <li key={`comment-${id}-parent-${parentId}`} className="m-1">
-            <div className="bg-slate-950 p-2 rounded">
-              <div className="text-sm">
-                <span className="font-bold">
-
-                  {author.username}
-                </span>
-                <span className="font-thin">{` · ${dayjs(createdAt).fromNow()}`}</span></div>
-              <p className="font-normal text-lg">{content}</p>
-              <div className="text-xs font-bold">
-                {user && (
-                  <div>
-                    <span onClick={toggleReply}>Reply</span>
-                    {
-                      showReplyWizard && <CreateCommentWizard submitComment={createComment} commentLoading={false}/>
-                    }
-                  </div>
-                )}
-              </div>
-            </div>
-            <DisplayCommentTree comments={comments} parentId={id}  indent={indent + 1} submitPostComment={submitPostComment} />
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-interface CreateCommentWizardProps {
-  submitComment: (content: string) => void;
-  commentLoading: boolean;
-}
-const CreateCommentWizard = ({ submitComment, commentLoading }: CreateCommentWizardProps) => {
-  const { user } = useUser()
-  const commentRef = useRef<HTMLTextAreaElement>(null)
-  if(!user) return null
-  const createComment = () => {
-    if(commentRef.current) submitComment(commentRef.current.value)
-  }
-  return (
-    <div className="flex flex-row space-x-2 py-3 px-1">
-      <Textarea inputRef={commentRef} />
-      <div className="h-fit">
-        <Button buttonText="Submit Comment" onClick={createComment} disabled={commentLoading} />
-      </div>
-    </div>
-  )
-}
 
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
   const commentRef = useRef<HTMLTextAreaElement>(null)
