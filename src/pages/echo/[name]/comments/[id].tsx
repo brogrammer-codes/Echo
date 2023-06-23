@@ -6,7 +6,7 @@ import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Head from "next/head";
 import Link from "next/link";
 import { Button, Textarea } from "~/components/atoms";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 import dayjs from "dayjs";
@@ -14,20 +14,34 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import EchoButton from "~/components/atoms/echoButton";
+import { usePost } from "~/hooks";
 dayjs.extend(relativeTime);
 
 type PostComments = RouterOutputs['posts']['getPostsById'][number]['comments']
-
-function displayCommentTree(comments: PostComments, parentId: string | null = null, indent = 0) {
+interface displayCommentTreeProps {
+  comments: PostComments,
+  parentId: string | null,
+  indent: number,
+  submitPostComment: (comment: string, parentId?: string | undefined) => void,
+}
+function DisplayCommentTree(props: displayCommentTreeProps) {
+  const { comments, parentId, indent, submitPostComment } = props
   const parentComments = comments.filter((comment) => comment.parentCommentId === parentId);
-
+  const { user } = useUser()
   return (
-    <ul className={`ml-${indent} p-1`}>
+    <ul className={`ml-${indent * 3} p-1`}>
       {parentComments.map((comment) => {
         const { id, content, author, createdAt } = comment;
-
+        const [showReplyWizard, setShowReplyWizard] = useState<boolean>(false)
+        const toggleReply = () => setShowReplyWizard((current) => !current)
+        
+        const createComment = (comment: string) => {
+          submitPostComment(comment,  id)
+          toggleReply()
+        }
+        
         return (
-          <li key={id} className="mb-4">
+          <li key={`comment-${id}-parent-${parentId}`} className="m-1">
             <div className="bg-slate-950 p-2 rounded">
               <div className="text-sm">
                 <span className="font-bold">
@@ -37,48 +51,54 @@ function displayCommentTree(comments: PostComments, parentId: string | null = nu
                 <span className="font-thin">{` · ${dayjs(createdAt).fromNow()}`}</span></div>
               <p className="font-normal text-lg">{content}</p>
               <div className="text-xs font-bold">
-                <span>Reply</span>
+                {user && (
+                  <div>
+                    <span onClick={toggleReply}>Reply</span>
+                    {
+                      showReplyWizard && <CreateCommentWizard submitComment={createComment} commentLoading={false}/>
+                    }
+                  </div>
+                )}
               </div>
             </div>
-            {displayCommentTree(comments, id, indent + 1)}
+            <DisplayCommentTree comments={comments} parentId={id}  indent={indent + 1} submitPostComment={submitPostComment} />
           </li>
         );
       })}
     </ul>
   );
 }
+interface CreateCommentWizardProps {
+  submitComment: (content: string) => void;
+  commentLoading: boolean;
+}
+const CreateCommentWizard = ({ submitComment, commentLoading }: CreateCommentWizardProps) => {
+  const { user } = useUser()
+  const commentRef = useRef<HTMLTextAreaElement>(null)
+  if(!user) return null
+  const createComment = () => {
+    if(commentRef.current) submitComment(commentRef.current.value)
+  }
+  return (
+    <div className="flex flex-row space-x-2 py-3 px-1">
+      <Textarea inputRef={commentRef} />
+      <div className="h-fit">
+        <Button buttonText="Submit Comment" onClick={createComment} disabled={commentLoading} />
+      </div>
+    </div>
+  )
+}
 
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data, isLoading } = api.posts.getPostsById.useQuery({ id })
-  const { user } = useUser()
-  const post = data && data.length ? data[0] : null
   const commentRef = useRef<HTMLTextAreaElement>(null)
-  const ctx = api.useContext()
-  if (isLoading) return <LoadingPage />
+  const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { if (commentRef?.current?.value) commentRef.current.value = '' } })
+  const { user } = useUser()
+  const postLikedByUser = post && !!post?.likes.find((like) => like.userId === user?.id) || false
+
+  if (postLoading) return <LoadingPage />
   if (!post) return <div>Could not load Post</div>
   const { data: echo } = api.subEcho.getSubEchoById.useQuery({ id: post.echoId })
-  const {mutate: mutateLikePost, isLoading: likeLoading} = api.posts.likePost.useMutation({
-    onSuccess: () => {
-      void ctx.posts.getAll.invalidate();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0])
-      } else {
-        toast.error("Failed to post")
-      }
-    }
-  })
-  const { mutate } = api.posts.addComment.useMutation({
-    onSuccess: () => {
-      if (commentRef?.current?.value) commentRef.current.value = ''
-      void ctx.posts.getPostsById.invalidate()
-    },
-    onError: () => {
-      toast.error("Could not post comment")
-    }
-  })
+
   const PostLink = () => {
     return (
       <Link href={post.url} className="flex w-5 ml-4" target={'_blank'}>
@@ -89,15 +109,15 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
       </Link>
     )
   }
-  const submitPostComment = (parentId: string | undefined = undefined) => {
-    if (commentRef.current) {
-      mutate({ postId: id, content: commentRef.current.value, parentCommentId: parentId })
-    }
+  const submitPostComment = (content: string, parentId: string | undefined = undefined) => {
+      addComment({ postId: id, content, parentCommentId: parentId })
   }
-  const likePost = () => {
-    if(!user) toast.error("You need to sign in to echo a post!")
-    else  mutateLikePost({postId: id})
+  const likePostOnClick = () => {
+    if (!user) toast.error("You need to sign in to echo a post!")
+    else likePost({ postId: id })
   }
+
+
   return (
     <>
       <Head>
@@ -105,22 +125,20 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full md:w-2/3 p-2">
-          <h1 className="flex font-bold text-2xl">{post.title} {post.url && <PostLink />}</h1>
-          <div className="flex text-sm font-thin space-x-3 align-middle"><Image alt="profile image" src={post.user.profileImageUrl} width={56} height={56}  className="h-8 w-8 rounded-full"/><span className="inline-block align-middle font-bold">{post.user.username}</span><span className="font-thin">{` · ${dayjs(post.createdAt).fromNow()}`}</span></div>
-          <span>{post.description}</span>
-          {user && (
-            <div className="flex flex-row space-x-2 py-3 px-1">
-              <Textarea inputRef={commentRef} />
-              <div className="h-fit">
+          <div className="flex">
+            <EchoButton likePost={likePostOnClick} isLoading={likeLoading} postLikedByUser={postLikedByUser} likes={post.likes.length} />
+            <div>
 
-              <Button buttonText="Submit Comment" onClick={() => submitPostComment()} />
-              </div>
+              <h1 className="flex font-bold text-2xl">{post.title} {post.url && <PostLink />}</h1>
+              <div className="flex text-sm font-thin space-x-3 align-middle"><Image alt="profile image" src={post.user.profileImageUrl} width={56} height={56} className="h-8 w-8 rounded-full" /><span className="inline-block align-middle font-bold">{post.user.username}</span><span className="font-thin">{` · ${dayjs(post.createdAt).fromNow()}`}</span></div>
+              <span>{post.description}</span>
             </div>
-          )}
+          </div>
+          <CreateCommentWizard submitComment={submitPostComment} commentLoading={commentLoading} />
           <div className="flex flex-col">
 
             {
-              !isLoading ? displayCommentTree(post.comments) : <LoadingPage />
+              post.comments.length ? !postLoading ? <DisplayCommentTree comments={post.comments} parentId={null}  indent={0} submitPostComment={submitPostComment} /> : <LoadingPage /> : null
             }
           </div>
         </div>

@@ -48,9 +48,7 @@ export const Post = (props: PostWithUser) => {
         </div>
       </div>
       <div className="flex w-1/6 flex-col">
-        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePost} isLoading={isLoading}/>
-        <span className="font-semibold">{props.likes.length} echos</span>
-
+        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePost} isLoading={isLoading} likes={props.likes.length}/>
       </div>
     </div>
   )
