@@ -32,9 +32,11 @@ const CommentLeaf = (props: CommentLeafProps) => {
   const { comments, parentId, indent, submitPostComment, comment } = props
   const { id, content, author, createdAt } = comment;
   const { user } = useUser()
+  const childComments = comments.filter((comment) => comment.parentCommentId === id)
   const [showReplyWizard, setShowReplyWizard] = useState<boolean>(false)
+  const [showCommentTree, setShowCommentTree] = useState<boolean>(false)
   const toggleReply = () => setShowReplyWizard((current) => !current)
-
+  const toggleCommentTree = () => setShowCommentTree((current) => !current)
   const createComment = (comment: string) => {
     submitPostComment(comment, id)
     toggleReply()
@@ -42,26 +44,31 @@ const CommentLeaf = (props: CommentLeafProps) => {
 
   return (
     <li className="m-1">
-      <div className="bg-slate-950 p-2 rounded">
-        <div className="text-sm">
-          <span className="font-bold">
+      <div className="flex flex-row bg-slate-950 p-2 rounded">
+        <div className="flex flex-col basis-11/12">
+          <div className="text-sm">
+            <span className="font-bold">
 
-            {author.username}
-          </span>
-          <span className="font-thin">{` · ${dayjs(createdAt).fromNow()}`}</span></div>
-        <p className="font-normal text-lg">{content}</p>
-        <div className="text-xs font-bold">
-          {user && (
-            <div>
-              <span onClick={toggleReply}>Reply</span>
-              {
-                showReplyWizard && <CreateCommentWizard submitComment={createComment} commentLoading={false} />
-              }
-            </div>
-          )}
+              {author.username}
+            </span>
+            <span className="font-thin">{` · ${dayjs(createdAt).fromNow()}`}</span>
+          </div>
+          <p className="font-normal text-lg">{content}</p>
+          <div className="text-xs font-bold">
+            {user && (
+              <div>
+                <span onClick={toggleReply}>Reply</span>
+              </div>
+            )}
+            <span>{`${childComments.length} comments`}</span>
+          </div>
+            {
+              showReplyWizard && <CreateCommentWizard submitComment={createComment} commentLoading={false} />
+            }
         </div>
+        {childComments.length ? <button onClick={toggleCommentTree}>{showCommentTree ? "[-]" : "[+]"}</button> : null}
       </div>
-      <DisplayCommentTree comments={comments} parentId={id} indent={indent + 1} submitPostComment={submitPostComment} />
+      {showCommentTree && <DisplayCommentTree comments={comments} parentId={id} indent={indent + 1} submitPostComment={submitPostComment} />}
     </li>
   );
 }
