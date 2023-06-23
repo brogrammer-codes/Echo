@@ -12,7 +12,7 @@ const getMappedPosts = async (posts: Post[], ctx: {
   return await Promise.all(posts.map(async (post) => {
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { id: post.echoId } });
     const likes = await ctx.prisma.like.findMany({ where: { postId: post.id } }) || []
-    const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id } }) || []
+    const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id }, orderBy: {createdAt: 'desc'} }) || []
     const userId = post.authorId;
     const user = await clerkClient.users.getUser(userId);
 
@@ -64,6 +64,20 @@ export const postRouter = createTRPCRouter({
     if(!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
     const post = await ctx.prisma.post.create({data: {title, url, echoId: subEcho.id, description, authorId: userId}})
     return post
+    
+  }),
+  addComment: privateProcedure.input(z.object({ 
+    content: z.string().min(1).max(100), 
+      postId: z.string().min(1),
+      parentCommentId: z.string().min(1).optional(),
+    })).mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId
+    const {content, postId, parentCommentId} = input
+    const comment = await ctx.prisma.comment.create({data: {content, authorId: userId, postId, parentCommentId }})
+    // const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: echo } });
+    // if(!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
+    // const post = await ctx.prisma.post.create({data: {title, url, echoId: subEcho.id, description, authorId: userId}})
+    return comment
     
   }),
   likePost: privateProcedure.input(z.object({postId: z.string().min(1)})).mutation(async ({ ctx, input }) => {

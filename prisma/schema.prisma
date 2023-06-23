@@ -38,12 +38,12 @@ model Like {
 }
 
 model SubEcho {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    title     String   @unique @db.VarChar(50)
+    id          String   @id @default(cuid())
+    createdAt   DateTime @default(now())
+    title       String   @unique @db.VarChar(50)
     description String   @default("") @db.VarChar(255)
-    authorId  String
-    post      Post[]
+    authorId    String
+    post        Post[]
 
     @@index([authorId])
 }
@@ -51,7 +51,7 @@ model SubEcho {
 model Comment {
     id              String    @id @default(cuid())
     createdAt       DateTime  @default(now())
-    authorId  String
+    authorId        String
     content         String    @db.VarChar(255)
     postId          String
     post            Post      @relation(fields: [postId], references: [id])
