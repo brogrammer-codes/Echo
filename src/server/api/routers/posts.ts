@@ -57,7 +57,7 @@ export const postRouter = createTRPCRouter({
   getPostsByEchoId: publicProcedure
     .input(z.object({ echoId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
-      const subPosts = await ctx.prisma.post.findMany({ where: { echoId: input.echoId } })
+      const subPosts = await ctx.prisma.post.findMany({ where: { echoId: input.echoId }, take: 100, orderBy: {createdAt: "desc"} })
       if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
       const mappedPosts = getMappedPosts(subPosts, ctx)
       return mappedPosts
