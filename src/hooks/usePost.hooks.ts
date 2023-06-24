@@ -22,6 +22,7 @@ export const usePost = ({ onCommentSuccess, postId }: usePostProps) => {
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
       void ctx.posts.getPostsById.invalidate()
+      void ctx.posts.getPostsByEchoId.invalidate()
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content

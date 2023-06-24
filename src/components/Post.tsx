@@ -4,32 +4,22 @@ import { useState } from "react"
 import { api, RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
+import { usePost } from "~/hooks";
 
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 export const Post = (props: PostWithUser) => {
+  const { likePost, likeLoading } = usePost({postId: props.id})
+
   const { user } = useUser()
   const ctx = api.useContext()
 
-  const { mutate, isLoading } = api.posts.likePost.useMutation({
-    onSuccess: () => {
-      void ctx.posts.getAll.invalidate();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0])
-      } else {
-        toast.error("Failed to post")
-      }
-    }
-  })
   const postLikedByUser = () => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
-  const likePost = () => {
+  const likePostOnClick = () => {
     if (!user) toast.error("You need to sign in to echo a post!")
-    else mutate({ postId: props.id })
+    else likePost({ postId: props.id })
   }
   return (
     <div className="flex flex-row p-8 border-b border-slate-400 p-4 gap-3">
@@ -48,7 +38,7 @@ export const Post = (props: PostWithUser) => {
         </div>
       </div>
       <div className="flex w-1/6 flex-col">
-        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePost} isLoading={isLoading} likes={props.likes.length} />
+        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePostOnClick} isLoading={likeLoading} likes={props.likes.length} />
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { api } from "~/utils/api";
 import type { NextPage, GetStaticProps } from "next";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Head from "next/head";
+import { CreatePostWizard } from "~/components/createPostWizard";
 
 
 const EchoPage: NextPage<{ name: string }> = ({name}) => {
@@ -19,6 +20,7 @@ const EchoPage: NextPage<{ name: string }> = ({name}) => {
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full md:w-2/3 p-2">
         <h1 className="font-bold text-2xl">{data.title}</h1>
+        <CreatePostWizard currentEchoName={data.title}/>
         <div className="flex flex-col">
 
         {
