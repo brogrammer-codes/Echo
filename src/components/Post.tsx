@@ -1,54 +1,65 @@
 import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { api, RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
-
+import { usePost } from "~/hooks";
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
+
+
 export const Post = (props: PostWithUser) => {
+  const { likePost, likeLoading } = usePost({ postId: props.id })
+
   const { user } = useUser()
   const ctx = api.useContext()
+  console.log(props.metadata?.imageUrl);
 
-  const { mutate, isLoading } = api.posts.likePost.useMutation({
-    onSuccess: () => {
-      void ctx.posts.getAll.invalidate();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0])
-      } else {
-        toast.error("Failed to post")
-      }
-    }
-  })
+
   const postLikedByUser = () => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
-  const likePost = () => {
+  const likePostOnClick = () => {
     if (!user) toast.error("You need to sign in to echo a post!")
-    else mutate({ postId: props.id })
+    else likePost({ postId: props.id })
+  }
+  const PostLink = () => {
+    return (
+      <Link href={props.url} className="flex w-5 ml-4" target={'_blank'}>
+  
+        <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" strokeLinecap="round" strokeLinejoin="round"></path>
+        </svg>
+      </Link>
+    )
   }
   return (
-    <div className="flex flex-row p-8 border-b border-slate-400 p-4 gap-3">
+    <div className="flex flex-col rounded border-b border-slate-400 p-4">
 
-      <div className="flex flex-col gap-3 w-5/6">
-        <Link href={props.url ? props.url : `/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target={props.url ? "_blank" : "_self"}>
-          <span className="font-bold text-4xl">{props.title}</span>
+      {props.metadata?.imageUrl && (
+        <Link href={props.url} target={"_blank"} className="h-48 sm:h-80 w-full overflow-hidden">
+          <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg" />
         </Link>
-        <span className="font-semibold text-sm">
-          {props.description}
-        </span>
-        <div className="flex flex-row space-x-4">
-          <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{props.comments.length} comments</span></Link>
-          <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{`e/${props?.echoName || ''}`}</span></Link>
-          <span className="text-slate-500 italic font-semibold underline">{`@/${props.user.username}`}</span>
+      )}
+      <div className="flex flex-row gap-3">
+
+        <div className="flex flex-col gap-3 w-5/6">
+          <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`}>
+            <span className="flex font-bold text-4xl">{props.title} {props.url && !props.metadata?.imageUrl && <PostLink />}</span>
+          </Link>
+          <span className="font-semibold text-sm">
+            {props.description}
+          </span>
+          <div className="flex flex-row space-x-4">
+            <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{props.comments.length} comments</span></Link>
+            <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{`e/${props?.echoName || ''}`}</span></Link>
+            <span className="text-slate-500 italic font-semibold underline">{`@/${props.user.username}`}</span>
+          </div>
         </div>
-      </div>
-      <div className="flex w-1/6 flex-col">
-        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePost} isLoading={isLoading} likes={props.likes.length} />
+        <div className="flex w-1/6 flex-col">
+          <EchoButton postLikedByUser={postLikedByUser()} likePost={likePostOnClick} isLoading={likeLoading} likes={props.likes.length} />
+        </div>
       </div>
     </div>
   )

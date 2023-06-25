@@ -56,7 +56,8 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full md:w-2/3 p-2">
-          <div className="flex">
+          <Post {...post}/>
+          {/* <div className="flex">
             <EchoButton likePost={likePostOnClick} isLoading={likeLoading} postLikedByUser={postLikedByUser} likes={post.likes.length} />
             <div>
 
@@ -64,7 +65,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
               <div className="flex text-sm font-thin space-x-3 align-middle"><Image alt="profile image" src={post.user.profileImageUrl} width={56} height={56} className="h-8 w-8 rounded-full" /><span className="inline-block align-middle font-bold">{post.user.username}</span><span className="font-thin">{` · ${dayjs(post.createdAt).fromNow()}`}</span></div>
               <span>{post.description}</span>
             </div>
-          </div>
+          </div> */}
           <CreateCommentWizard submitComment={submitPostComment} commentLoading={commentLoading} />
           <div className="flex flex-col">
 
