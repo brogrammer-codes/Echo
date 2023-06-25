@@ -7,6 +7,8 @@ import { EchoButton } from "./molecules";
 import { usePost } from "~/hooks";
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
+
+
 export const Post = (props: PostWithUser) => {
   const { likePost, likeLoading } = usePost({ postId: props.id })
 
@@ -22,6 +24,16 @@ export const Post = (props: PostWithUser) => {
     if (!user) toast.error("You need to sign in to echo a post!")
     else likePost({ postId: props.id })
   }
+  const PostLink = () => {
+    return (
+      <Link href={props.url} className="flex w-5 ml-4" target={'_blank'}>
+  
+        <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" strokeLinecap="round" strokeLinejoin="round"></path>
+        </svg>
+      </Link>
+    )
+  }
   return (
     <div className="flex flex-col rounded border-b border-slate-400 p-4">
 
@@ -34,7 +46,7 @@ export const Post = (props: PostWithUser) => {
 
         <div className="flex flex-col gap-3 w-5/6">
           <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`}>
-            <span className="font-bold text-4xl">{props.title}</span>
+            <span className="flex font-bold text-4xl">{props.title} {props.url && !props.metadata?.imageUrl && <PostLink />}</span>
           </Link>
           <span className="font-semibold text-sm">
             {props.description}
