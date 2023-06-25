@@ -1,18 +1,19 @@
 import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { api, RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
 import { usePost } from "~/hooks";
 
-
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 export const Post = (props: PostWithUser) => {
-  const { likePost, likeLoading } = usePost({postId: props.id})
+  const { likePost, likeLoading } = usePost({ postId: props.id })
 
   const { user } = useUser()
   const ctx = api.useContext()
+  console.log(props.metadata?.imageUrl);
+
 
   const postLikedByUser = () => {
     return !!props.likes.find((like) => like.userId === user?.id)
@@ -22,23 +23,31 @@ export const Post = (props: PostWithUser) => {
     else likePost({ postId: props.id })
   }
   return (
-    <div className="flex flex-row p-8 border-b border-slate-400 p-4 gap-3">
+    <div className="flex flex-col rounded border-b border-slate-400 p-4">
 
-      <div className="flex flex-col gap-3 w-5/6">
-        <Link href={props.url ? props.url : `/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target={props.url ? "_blank" : "_self"}>
-          <span className="font-bold text-4xl">{props.title}</span>
+      {props.metadata?.imageUrl && (
+        <Link href={props.url} target={"_blank"} className="h-48 sm:h-80 w-full overflow-hidden">
+          <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg" />
         </Link>
-        <span className="font-semibold text-sm">
-          {props.description}
-        </span>
-        <div className="flex flex-row space-x-4">
-          <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{props.comments.length} comments</span></Link>
-          <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{`e/${props?.echoName || ''}`}</span></Link>
-          <span className="text-slate-500 italic font-semibold underline">{`@/${props.user.username}`}</span>
+      )}
+      <div className="flex flex-row gap-3">
+
+        <div className="flex flex-col gap-3 w-5/6">
+          <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`}>
+            <span className="font-bold text-4xl">{props.title}</span>
+          </Link>
+          <span className="font-semibold text-sm">
+            {props.description}
+          </span>
+          <div className="flex flex-row space-x-4">
+            <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{props.comments.length} comments</span></Link>
+            <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{`e/${props?.echoName || ''}`}</span></Link>
+            <span className="text-slate-500 italic font-semibold underline">{`@/${props.user.username}`}</span>
+          </div>
         </div>
-      </div>
-      <div className="flex w-1/6 flex-col">
-        <EchoButton postLikedByUser={postLikedByUser()} likePost={likePostOnClick} isLoading={likeLoading} likes={props.likes.length} />
+        <div className="flex w-1/6 flex-col">
+          <EchoButton postLikedByUser={postLikedByUser()} likePost={likePostOnClick} isLoading={likeLoading} likes={props.likes.length} />
+        </div>
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/ap
 import { clerkClient, type User } from "@clerk/nextjs/server";
 import type { Post, Prisma, PrismaClient, Comment } from "@prisma/client";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
-
+import { getUrlMetadata } from "~/server/helpers/urlMetadata";
 
 const getMappedComments = async (comments: Comment[]) => {
   const userId = comments.map((comment) => comment.authorId);
@@ -34,6 +34,11 @@ const getMappedPosts = async (posts: Post[], ctx: {
     const userId = post.authorId;
     const user = await clerkClient.users.getUser(userId).then(filterUserForClient);
     const mappedComments = await getMappedComments(comments)
+    const metadata = await getUrlMetadata(post.url)
+    
+    // if(post.url) {
+    //   await urlMetadata(post.url).then((metadata) => console.log(metadata))
+    // }
     if (!user)
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Author for post not found" });
     // const username = user?.username || (user?.firstName && user?.lastName ? `${user.firstName}_${user.lastName}` : 'unknown');
@@ -42,7 +47,8 @@ const getMappedPosts = async (posts: Post[], ctx: {
       echoName: subEcho?.title,
       likes,
       comments: mappedComments,
-      user
+      user,
+      metadata,
     };
   }));
 }
@@ -104,5 +110,11 @@ export const postRouter = createTRPCRouter({
     } else {      
       await ctx.prisma.like.create({data: {postId: input.postId, userId: userId}})
     }
-  })
+  }),
+  getMetadataFromUrl: publicProcedure
+    .input(z.object({ url: z.string().min(1).url("Must enter a URL") }))
+    .query(async ({ input }) => {
+      const metadata = await getUrlMetadata(input.url)
+      return metadata
+    }),
 });
