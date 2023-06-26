@@ -45,6 +45,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
       void ctx.posts.getAll.invalidate();
       void ctx.posts.getPostById.invalidate()
       void ctx.posts.getPostsByEchoId.invalidate()
+      toast.success("Post updated!")
     },
     onError: (e) => {
       if (e.message) toast.error(e.message)

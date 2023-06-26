@@ -22,7 +22,7 @@ dayjs.extend(relativeTime);
 
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
   const commentRef = useRef<HTMLTextAreaElement>(null)
-  const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted") } })
+  const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted!") } })
   const { user } = useUser()
 
 

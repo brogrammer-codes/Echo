@@ -23,7 +23,7 @@ export const Post = (props: PostWithUser) => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
   const likePostOnClick = () => {
-    if (!user) toast.error("You need to sign in to echo a post!")
+    if (!user) toast.error("You need to sign in to like a post!")
     else likePost({ postId: props.id })
   }
   const PostLink = () => {

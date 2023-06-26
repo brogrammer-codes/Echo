@@ -34,7 +34,7 @@ const CommentLeaf = (props: CommentLeafProps) => {
   const { user } = useUser()
   const childComments = comments.filter((comment) => comment.parentCommentId === id)
   const [showReplyWizard, setShowReplyWizard] = useState<boolean>(false)
-  const [showCommentTree, setShowCommentTree] = useState<boolean>(false)
+  const [showCommentTree, setShowCommentTree] = useState<boolean>(true)
   const toggleReply = () => setShowReplyWizard((current) => !current)
   const toggleCommentTree = () => setShowCommentTree((current) => !current)
   const createComment = (comment: string) => {
