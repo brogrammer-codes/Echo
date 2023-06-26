@@ -1,22 +1,24 @@
 import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import Image from "next/image";
+
 import { api, RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
 import { usePost } from "~/hooks";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
 
 export const Post = (props: PostWithUser) => {
-  const { likePost, likeLoading } = usePost({ postId: props.id })
+  const { likePost, likeLoading, deletePost } = usePost({ postId: props.id })
 
   const { user } = useUser()
   const ctx = api.useContext()
-  console.log(props.metadata?.imageUrl);
-
-
   const postLikedByUser = () => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
@@ -39,22 +41,23 @@ export const Post = (props: PostWithUser) => {
 
       {props.metadata?.imageUrl && (
         <Link href={props.url} target={"_blank"} className="h-48 sm:h-80 w-full overflow-hidden">
-          <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg" />
+          <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg w-full" />
         </Link>
       )}
-      <div className="flex flex-row gap-3">
+      <div className="flex flex-row gap-3 p-3">
 
         <div className="flex flex-col gap-3 w-5/6">
           <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`}>
             <span className="flex font-bold text-4xl">{props.title} {props.url && !props.metadata?.imageUrl && <PostLink />}</span>
           </Link>
+          <div className="flex text-sm font-thin space-x-3 align-middle"><Image alt="profile image" src={props.user.profileImageUrl} width={56} height={56} className="h-8 w-8 rounded-full" /><span className="inline-block align-middle font-bold">{props.user.username}</span><span className="font-thin">{` · ${dayjs(props.createdAt).fromNow()}`}</span></div>
           <span className="font-semibold text-sm">
             {props.description}
           </span>
           <div className="flex flex-row space-x-4">
-            <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{props.comments.length} comments</span></Link>
-            <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{`e/${props?.echoName || ''}`}</span></Link>
-            <span className="text-slate-500 italic font-semibold underline">{`@/${props.user.username}`}</span>
+            <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{props.comments.length} comments</span></Link>
+            <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{`e/${props?.echoName || ''}`}</span></Link>
+            {user && user.id === props.authorId && <span className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={() => deletePost({id: props.id})}>Delete</span>}
           </div>
         </div>
         <div className="flex w-1/6 flex-col">

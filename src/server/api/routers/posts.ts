@@ -90,6 +90,14 @@ export const postRouter = createTRPCRouter({
     return post
     
   }),
+  deletePost: privateProcedure.input(z.object({id: z.string().min(1).max(255)})).mutation(async({ctx, input}) => {
+ 
+    const userId = ctx.userId
+    const post = await ctx.prisma.post.findUnique({where: {id: input.id}})
+    if(post?.authorId !== userId) throw new TRPCError({code: "FORBIDDEN"})
+    await ctx.prisma.post.delete({where: {id: input.id}})
+    return true
+  }),
   addComment: privateProcedure.input(z.object({ 
     content: z.string().min(1).max(100), 
       postId: z.string().min(1),
@@ -113,7 +121,7 @@ export const postRouter = createTRPCRouter({
   }),
   getMetadataFromUrl: publicProcedure
     .input(z.object({ url: z.string().min(1).url("Must enter a URL") }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       const metadata = await getUrlMetadata(input.url)
       return metadata
     }),
