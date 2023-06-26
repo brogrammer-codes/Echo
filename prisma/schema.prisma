@@ -16,7 +16,7 @@ model Post {
     createdAt   DateTime  @default(now())
     title       String    @db.VarChar(100)
     url         String    @db.VarChar(255)
-    description String    @db.VarChar(255)
+    description String    @db.VarChar(500)
     authorId    String
     echo        SubEcho   @relation(fields: [echoId], references: [id])
     echoId      String
@@ -41,7 +41,7 @@ model SubEcho {
     id          String   @id @default(cuid())
     createdAt   DateTime @default(now())
     title       String   @unique @db.VarChar(50)
-    description String   @default("") @db.VarChar(255)
+    description String   @default("") @db.VarChar(500)
     authorId    String
     post        Post[]
 
@@ -52,7 +52,7 @@ model Comment {
     id              String    @id @default(cuid())
     createdAt       DateTime  @default(now())
     authorId        String
-    content         String    @db.VarChar(255)
+    content         String    @db.VarChar(500)
     postId          String
     post            Post      @relation(fields: [postId], references: [id])
     parentCommentId String?
