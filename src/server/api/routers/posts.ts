@@ -32,7 +32,7 @@ const getMappedPosts = async (posts: Post[], ctx: {
     const likes = await ctx.prisma.like.findMany({ where: { postId: post.id } }) || []
     const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id }, orderBy: {createdAt: 'desc'} }) || []
     const userId = post.authorId;
-    let user = userId ? await clerkClient.users.getUser(userId).then(filterUserForClient).catch() : {username: '[deleted]', id: '', profileImageUrl: ''};
+    const user = userId ? await clerkClient.users.getUser(userId).then(filterUserForClient).catch() : {username: '[deleted]', id: '', profileImageUrl: ''};
    
     
     const mappedComments = await getMappedComments(comments)
