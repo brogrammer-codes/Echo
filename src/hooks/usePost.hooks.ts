@@ -75,6 +75,19 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
       if (errorMessage) showZodError(errorMessage)
     }
   })
+
+  const {mutate: deletePost} = api.posts.deletePost.useMutation({
+    onSuccess: () => {
+      void ctx.posts.getAll.invalidate();
+      void ctx.posts.getPostsById.invalidate()
+      void ctx.posts.getPostsByEchoId.invalidate()
+    },
+    onError: (e) => {
+      if (e.message) toast.error(e.message)
+      const errorMessage = e.data?.zodError
+      if (errorMessage) showZodError(errorMessage)
+    }
+  })
   
   return {
     post, 
@@ -85,5 +98,6 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
     commentLoading,
     createPost,
     createPostLoading,
+    deletePost,
   }
 }

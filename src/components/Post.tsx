@@ -2,7 +2,6 @@ import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
 import Image from "next/image";
 
-import { useEffect, useState } from "react"
 import { api, RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
@@ -16,7 +15,7 @@ type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
 
 export const Post = (props: PostWithUser) => {
-  const { likePost, likeLoading } = usePost({ postId: props.id })
+  const { likePost, likeLoading, deletePost } = usePost({ postId: props.id })
 
   const { user } = useUser()
   const ctx = api.useContext()
@@ -42,7 +41,7 @@ export const Post = (props: PostWithUser) => {
 
       {props.metadata?.imageUrl && (
         <Link href={props.url} target={"_blank"} className="h-48 sm:h-80 w-full overflow-hidden">
-          <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg" />
+          <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg w-full" />
         </Link>
       )}
       <div className="flex flex-row gap-3 p-3">
@@ -56,8 +55,9 @@ export const Post = (props: PostWithUser) => {
             {props.description}
           </span>
           <div className="flex flex-row space-x-4">
-            <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{props.comments.length} comments</span></Link>
-            <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline">{`e/${props?.echoName || ''}`}</span></Link>
+            <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{props.comments.length} comments</span></Link>
+            <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{`e/${props?.echoName || ''}`}</span></Link>
+            {user && user.id === props.authorId && <span className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={() => deletePost({id: props.id})}>Delete</span>}
           </div>
         </div>
         <div className="flex w-1/6 flex-col">
