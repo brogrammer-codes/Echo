@@ -100,7 +100,7 @@ export const postRouter = createTRPCRouter({
     return true
   }),
   addComment: privateProcedure.input(z.object({ 
-    content: z.string().min(1).max(100), 
+    content: z.string().min(1).max(500), 
       postId: z.string().min(1),
       parentCommentId: z.string().min(1).optional(),
     })).mutation(async ({ ctx, input }) => {
