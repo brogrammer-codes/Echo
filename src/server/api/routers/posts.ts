@@ -12,9 +12,9 @@ const getMappedComments = async (comments: Comment[]) => {
     userId: userId, limit: 100,
   })).map(filterUserForClient)
   return comments.map((comment) => {
-    const author = users.find((user) => user.id === comment.authorId)
+    let author = users.find((user) => user.id === comment.authorId)
     
-    if (!author) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Author for comment not found" })
+    if (!author) author = {username: '[deleted]', id: '', profileImageUrl: ''} 
     return {
       ...comment,
       author: { ...author, username: author.username }, // need to spread the author object and add the username object to ensure type checking
@@ -32,16 +32,14 @@ const getMappedPosts = async (posts: Post[], ctx: {
     const likes = await ctx.prisma.like.findMany({ where: { postId: post.id } }) || []
     const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id }, orderBy: {createdAt: 'desc'} }) || []
     const userId = post.authorId;
-    const user = await clerkClient.users.getUser(userId).then(filterUserForClient);
+    const user = userId ? await clerkClient.users.getUser(userId).then(filterUserForClient).catch() : {username: '[deleted]', id: '', profileImageUrl: ''};
+   
+    
     const mappedComments = await getMappedComments(comments)
     const metadata = await getUrlMetadata(post.url)
     
-    // if(post.url) {
-    //   await urlMetadata(post.url).then((metadata) => console.log(metadata))
-    // }
-    if (!user)
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Author for post not found" });
-    // const username = user?.username || (user?.firstName && user?.lastName ? `${user.firstName}_${user.lastName}` : 'unknown');
+    // if (!user)
+    //   user = {username: '[deleted]', id: '', profileImageUrl: ''}
     return {
       ...post,
       echoName: subEcho?.title,
@@ -64,11 +62,13 @@ export const postRouter = createTRPCRouter({
     .input(z.object({ echoId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       const subPosts = await ctx.prisma.post.findMany({ where: { echoId: input.echoId }, take: 100, orderBy: {createdAt: "desc"} })
+      
       if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
+      // console.log("map: ", subPosts[0]);
       const mappedPosts = getMappedPosts(subPosts, ctx)
       return mappedPosts
     }),
-  getPostsById: publicProcedure
+  getPostById: publicProcedure
     .input(z.object({ id: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       const subPosts = await ctx.prisma.post.findUnique({ where: { id: input.id } })
@@ -95,7 +95,8 @@ export const postRouter = createTRPCRouter({
     const userId = ctx.userId
     const post = await ctx.prisma.post.findUnique({where: {id: input.id}})
     if(post?.authorId !== userId) throw new TRPCError({code: "FORBIDDEN"})
-    await ctx.prisma.post.delete({where: {id: input.id}})
+    // await ctx.prisma.post.delete({where: {id: input.id}})
+    await ctx.prisma.post.update({where: {id: input.id}, data: {authorId: ''}})
     return true
   }),
   addComment: privateProcedure.input(z.object({ 
@@ -121,8 +122,14 @@ export const postRouter = createTRPCRouter({
   }),
   getMetadataFromUrl: publicProcedure
     .input(z.object({ url: z.string().min(1).url("Must enter a URL") }))
-    .mutation(async ({ input }) => {
-      const metadata = await getUrlMetadata(input.url)
-      return metadata
+    .mutation(async ({ input }) => {      
+      try {
+        const metadata = await getUrlMetadata(input.url)
+        
+        return metadata
+        
+      } catch (error) {
+        return null
+      }
     }),
 });

@@ -18,7 +18,7 @@ import { usePost } from "~/hooks";
 import { CreateCommentWizard } from "./createCommentWizard";
 dayjs.extend(relativeTime);
 
-type PostComments = RouterOutputs['posts']['getPostsById'][number]['comments']
+type PostComments = RouterOutputs['posts']['getPostById'][number]['comments']
 interface DisplayCommentTreeProps {
   comments: PostComments,
   parentId: string | null,
