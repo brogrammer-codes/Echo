@@ -9,8 +9,8 @@ type EchoButtonProps = {
 
 export const EchoButton = ({ postLikedByUser, likePost, isLoading, likes = 0 }: EchoButtonProps) => {
   return (
-    <div className='flex w-1/6 flex-col'>
-      <button className={`w-10 ${postLikedByUser ? 'text-yellow-500' : 'text-slate-500'}`} onClick={likePost} disabled={isLoading}>
+    <div className='flex w-fit flex-col'>
+      <button className={`w-9 ${postLikedByUser ? 'text-yellow-500' : 'text-slate-500'}`} onClick={likePost} disabled={isLoading}>
       {
         postLikedByUser ? (
           <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" strokeWidth="1" xmlns="http://www.w3.org/2000/svg">
@@ -30,7 +30,7 @@ export const EchoButton = ({ postLikedByUser, likePost, isLoading, likes = 0 }: 
 
 
       </button>
-      <span className="font-semibold">{likes} echos</span>
+      <span className="font-semibold text-sm">{`${likes} likes`}</span>
     </div>
   )
 }

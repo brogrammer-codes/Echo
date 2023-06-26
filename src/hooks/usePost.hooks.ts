@@ -35,7 +35,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
   let post = null
   let postLoading = false
   if(postId) {
-    const { data, isLoading } = api.posts.getPostsById.useQuery({ id: postId })
+    const { data, isLoading } = api.posts.getPostById.useQuery({ id: postId })
     post = data && data.length && data[0] 
     postLoading = isLoading
   }
@@ -43,7 +43,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
   const { mutate: likePostMutate, isLoading: likeLoading } = api.posts.likePost.useMutation({
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
-      void ctx.posts.getPostsById.invalidate()
+      void ctx.posts.getPostById.invalidate()
       void ctx.posts.getPostsByEchoId.invalidate()
     },
     onError: (e) => {
@@ -54,7 +54,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
   })
   const { mutate: addCommentMutate, isLoading: commentLoading } = api.posts.addComment.useMutation({
     onSuccess: () => {
-      void ctx.posts.getPostsById.invalidate()
+      void ctx.posts.getPostById.invalidate()
       onCommentSuccess && onCommentSuccess()
     },
     onError: () => {
@@ -79,7 +79,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
   const {mutate: deletePost} = api.posts.deletePost.useMutation({
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
-      void ctx.posts.getPostsById.invalidate()
+      void ctx.posts.getPostById.invalidate()
       void ctx.posts.getPostsByEchoId.invalidate()
     },
     onError: (e) => {
