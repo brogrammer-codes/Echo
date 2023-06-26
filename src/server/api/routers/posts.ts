@@ -113,7 +113,7 @@ export const postRouter = createTRPCRouter({
   }),
   getMetadataFromUrl: publicProcedure
     .input(z.object({ url: z.string().min(1).url("Must enter a URL") }))
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       const metadata = await getUrlMetadata(input.url)
       return metadata
     }),
