@@ -6,7 +6,20 @@ import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Head from "next/head";
 import { CreatePostWizard } from "~/components/createPostWizard";
 
+const sideBar = (title: string, description: string, numPosts: number,) => {
 
+  return (
+    <div className="flex flex-col space-y-3 py-4 px-2">
+
+      <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
+      <span className="font-normal text-lg text-slate-400">{description} </span>
+      <div className="flex flex-row space-x-3">
+
+        {numPosts ? <span className="font-normal italic text-lg text-slate-400">{numPosts} posts</span> : null}
+      </div>
+    </div>
+  )
+}
 const EchoPage: NextPage<{ name: string }> = ({ name }) => {
   const { data, isLoading } = api.subEcho.getSubEchoByName.useQuery({ name })
   if (isLoading) return <LoadingPage />
@@ -32,7 +45,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
           </div>
         </div>
         <div className="hidden md:flex flex-col w-1/3">
-          {data.description}
+          {sideBar(data.title, data.description, posts?.length || 0)}
           <CreatePostWizard currentEchoName={data.title} />
         </div>
       </div>

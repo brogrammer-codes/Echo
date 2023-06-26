@@ -55,7 +55,7 @@ export const Header = () => {
       <div className='hidden md:flex flex-row space-x-5 text-lg px-3 py-1'>
         {subEchos?.map((echo) => <Link className='italic font-semibold underline hover:text-slate-200' key={echo.id} href={`/echo/${echo.title}`}>{echo.title}</Link>)}
       </div>
-      {navOpen && (<div className='flex h-fill space-x-2 pb-10 justify-between'>
+      {navOpen && (<div className='flex h-screen space-x-2 pb-10 justify-between'>
         <div className="flex flex-col px-1">
           {isSignedIn ? <UserButton appearance={{
             elements: {

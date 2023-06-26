@@ -19,7 +19,20 @@ import { CreateCommentWizard } from "~/components/createCommentWizard";
 import { DisplayCommentTree } from "~/components/commentTree";
 dayjs.extend(relativeTime);
 
+const sideBar = (title: string, description: string, likes: number,) => {
 
+  return (
+    <div className="flex flex-col space-y-3 py-4 px-2">
+
+      <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
+      <span className="font-normal text-lg text-slate-400">{description} </span>
+      <div className="flex flex-row space-x-3">
+
+        {likes && <span className="font-normal italic text-lg text-slate-400">{likes} Likes</span>}
+      </div>
+    </div>
+  )
+}
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
   const commentRef = useRef<HTMLTextAreaElement>(null)
   const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted!") } })
@@ -47,7 +60,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full md:w-2/3 p-2">
-          <Post {...post}/>
+          <Post {...post} />
           <CreateCommentWizard submitComment={submitPostComment} commentLoading={commentLoading} />
           <div className="flex flex-col">
 
@@ -57,10 +70,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
           </div>
         </div>
         <div className="hidden md:flex w-1/3 flex-col space-y-2">
-          <span>{`Post has ${post.likes.length} likes`}</span>
-          <span>Echo </span>
-          <span>{echo?.title}</span>
-          <span>{echo?.description}</span>
+          {sideBar(echo?.title || '', echo?.description || '', post.likes.length)}
         </div>
       </div>
     </>
