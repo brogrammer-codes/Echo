@@ -6,9 +6,7 @@ import { CreatePostWizard } from "~/components/createPostWizard";
 import { useEffect, useState } from "react";
 
 
-const SortBar = () => {
 
-}
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
 export default function Home() {
@@ -17,9 +15,9 @@ export default function Home() {
   const { data, isLoading, refetch } = api.posts.getAll.useQuery({order})
   const [posts, setPosts,] = useState<PostWithUser[]>([])
   const { user, } = useUser()
-  useEffect(() => {
-    refetch()
-  }, [order])
+  // useEffect(() => {
+  //   refetch().catch()
+  // }, [order])
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load feed</div>
   
