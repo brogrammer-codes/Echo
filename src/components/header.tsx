@@ -34,7 +34,9 @@ export const Header = () => {
         </button>
 
         <div className="hidden w-full md:block md:w-auto" id="navbar-default">
+          <div className="flex flex-row space-x-4">
 
+        <Link href={'/echo'} className="text-lg text-slate-50 font-bold">Echos</Link>
           {isSignedIn ? <UserButton appearance={{
             elements: {
               userButtonAvatarBox: {
@@ -44,8 +46,9 @@ export const Header = () => {
               },
               userButtonOuterIdentifier: 'text-lg text-slate-50 font-bold'
             }
-
+            
           }} afterSignOutUrl="/" showName />  : <SignInButton />}
+          </div>
         </div>
       </div>
       <div className='hidden md:flex flex-row space-x-5 text-lg px-3 py-1'>

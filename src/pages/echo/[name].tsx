@@ -7,11 +7,11 @@ import Head from "next/head";
 import { CreatePostWizard } from "~/components/createPostWizard";
 
 
-const EchoPage: NextPage<{ name: string }> = ({name}) => {
+const EchoPage: NextPage<{ name: string }> = ({ name }) => {
   const { data, isLoading } = api.subEcho.getSubEchoByName.useQuery({ name })
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load feed</div>
-  const {data: posts, isLoading: postsLoading} = api.posts.getPostsByEchoId.useQuery({echoId: data.id})
+  const { data: posts, isLoading: postsLoading } = api.posts.getPostsByEchoId.useQuery({ echoId: data.id })
   return (
     <>
       <Head>
@@ -19,17 +19,21 @@ const EchoPage: NextPage<{ name: string }> = ({name}) => {
       </Head>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full md:w-2/3 p-2">
-        <h1 className="font-bold text-2xl">{data.title}</h1>
-        <CreatePostWizard currentEchoName={data.title}/>
-        <div className="flex flex-col">
+          <h1 className="font-bold text-2xl">{data.title}</h1>
+          <div className="block md:hidden">
 
-        {
-          !postsLoading ? posts?.map((post) => <Post key={post.id} {...post}/>) : <LoadingPage />
-        }
+            <CreatePostWizard currentEchoName={data.title} />
+          </div>
+          <div className="flex flex-col">
+
+            {
+              !postsLoading ? posts?.map((post) => <Post key={post.id} {...post} />) : <LoadingPage />
+            }
+          </div>
         </div>
-        </div>
-        <div className="hidden md:flex w-1/3">
+        <div className="hidden md:flex flex-col w-1/3">
           {data.description}
+          <CreatePostWizard currentEchoName={data.title} />
         </div>
       </div>
     </>
@@ -40,7 +44,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   const ssg = generateSSGHelper();
 
   const name = context.params?.name;
-  
+
   if (typeof name !== "string") throw new Error("no slug");
 
   await ssg.subEcho.getSubEchoByName.prefetch({ name })
