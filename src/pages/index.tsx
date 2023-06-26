@@ -22,7 +22,8 @@ export default function Home() {
         }
       </div>
       <div className="hidden md:flex flex-col w-1/3">
-        <h3>Welcome to</h3>
+        <h3>Welcome to Echo</h3>
+        <span>I created this using the t3 stack</span>
         <CreatePostWizard />
       </div>
     </div>

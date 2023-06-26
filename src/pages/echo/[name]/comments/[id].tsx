@@ -7,7 +7,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { Button, Textarea } from "~/components/atoms";
 import { useCallback, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import toast, { ToastIcon } from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 import dayjs from "dayjs";
 
@@ -22,24 +22,15 @@ dayjs.extend(relativeTime);
 
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
   const commentRef = useRef<HTMLTextAreaElement>(null)
-  const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { if (commentRef?.current?.value) commentRef.current.value = '' } })
+  const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted") } })
   const { user } = useUser()
-  const postLikedByUser = post && !!post?.likes.find((like) => like.userId === user?.id) || false
+
 
   if (postLoading) return <LoadingPage />
   if (!post) return <div>Could not load Post</div>
   const { data: echo } = api.subEcho.getSubEchoById.useQuery({ id: post.echoId })
 
-  const PostLink = () => {
-    return (
-      <Link href={post.url} className="flex w-5 ml-4" target={'_blank'}>
 
-        <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" strokeLinecap="round" strokeLinejoin="round"></path>
-        </svg>
-      </Link>
-    )
-  }
   const submitPostComment = (content: string, parentId: string | undefined = undefined) => {
     addComment({ postId: id, content, parentCommentId: parentId })
   }
