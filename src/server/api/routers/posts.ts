@@ -52,16 +52,19 @@ const getMappedPosts = async (posts: Post[], ctx: {
 }
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.input(z.object({order: z.string().min(1).optional()})).query(async ({ ctx, input }) => {
+  getAll: publicProcedure.input(z.object({orderKey: z.string().min(1).optional(), orderVal: z.string().min(1).optional()})).query(async ({ ctx, input }) => {
     let orderByObj:Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {createdAt: 'desc'}
     const orderByCommentsAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "asc"}}
     const orderByCommentsDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "desc"}}
     const orderByLikesDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "desc"}}
     const orderByLikesAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "asc"}}
-    if (input.order === 'asc') {
-      orderByObj = {likes: { _count: 'asc'}}
-    } else     if (input.order === 'desc') {
-      orderByObj = {likes: { _count: 'desc'}}
+    if (input.orderKey === 'likes') {
+      if(input.orderVal === 'asc') orderByObj = {likes: { _count: 'asc'}}
+      else orderByObj = {likes: { _count: 'desc'}}
+    } else if (input.orderKey === 'createdAt') {
+      if(input.orderVal === 'asc') orderByObj = {createdAt: 'asc'}
+      else  orderByObj = {createdAt: 'desc'}
+      // orderByObj = {likes: { _count: 'desc'}}
     }
 console.log(orderByObj);
 

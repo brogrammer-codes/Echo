@@ -28,8 +28,9 @@ const sideBar = (echoCount: number, userCount: number) => {
 }
 export default function Home() {
   // const { data, isLoading } = api.posts.getAll.useQuery()
-  const [order, setOrder,] = useState<string>('asc')
-  const { data, isLoading, refetch } = api.posts.getAll.useQuery({ order })
+  const [orderKey, setOrderKey,] = useState<string>('createdAt')
+  const [orderVal, setOrderVal] = useState<string>('asc')
+  const { data, isLoading, refetch } = api.posts.getAll.useQuery({ orderKey, orderVal })
   const [posts, setPosts,] = useState<PostWithUser[]>([])
   const {data: count} = api.subEcho.getAllCount.useQuery()
   const { } = useUser()
@@ -43,10 +44,12 @@ export default function Home() {
     <div className="flex flex-row w-full">
       <div className="flex flex-col w-full md:w-2/3 p-2">
         <div className="block md:hidden">
-          <div>
+          <div className="flex flex-row space-x-2">
 
-            <button onClick={() => setOrder('asc')}>Asc</button>
-            <button onClick={() => setOrder('desc')}>Dsc</button>
+            <button onClick={() => {setOrderVal('asc'); setOrderKey('likes')}}>Least Liked First</button>
+            <button onClick={() => {setOrderVal('desc');  setOrderKey('likes')}}>Most Liked First</button>
+            <button onClick={() => {setOrderVal('asc');  setOrderKey('createdAt')}}>Oldest First</button>
+            <button onClick={() => {setOrderVal('desc');  setOrderKey('createdAt')}}>Newest First</button>
           </div>
           <CreatePostWizard />
         </div>
