@@ -31,9 +31,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
   const [orderVal, setOrderVal] = useState<string>('asc')
   const [pagePosts, setPosts,] = useState<PostWithUser[]>([])
-  if (isLoading) return <LoadingPage />
-  if (!data) return <div>Could not load feed</div>
-  const { data: posts, isLoading: postsLoading } = api.posts.getPostsByEchoId.useQuery({ echoId: data.id })
+  const { data: posts, isLoading: postsLoading } = api.posts.getPostsByEchoId.useQuery({ echoId: data?.id || '' })
   useEffect(() => {
     posts && setPosts([...posts])
   }, [posts])
@@ -49,6 +47,8 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
     }
     setPosts([...newPosts])
   }, [orderKey, orderVal])
+  if (isLoading) return <LoadingPage />
+  if (!data) return <div>Could not load feed</div>
 
   return (
     <>
