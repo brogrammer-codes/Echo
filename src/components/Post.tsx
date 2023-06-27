@@ -13,9 +13,16 @@ dayjs.extend(relativeTime);
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
+interface PostCardProps {
+  post: PostWithUser, 
+  likePost: (postId: string) => void,
+  likeLoading: boolean, 
+  deletePost: (postId: string) => void
+}
 
 export const Post = (props: PostWithUser) => {
-  const { likePost, likeLoading, deletePost } = usePost({ postId: props.id })
+  // pass these fields into the POST card so we don't invoke the get post by ID call every card (might be causing too many callbacks error)
+  const { likePost, likeLoading, deletePost } = usePost({})
 
   const { user } = useUser()
   const ctx = api.useContext()
@@ -23,7 +30,7 @@ export const Post = (props: PostWithUser) => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
   const likePostOnClick = () => {
-    if (!user) toast.error("You need to sign in to echo a post!")
+    if (!user) toast.error("You need to sign in to like a post!")
     else likePost({ postId: props.id })
   }
   const PostLink = () => {

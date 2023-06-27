@@ -11,20 +11,21 @@ export const Header = () => {
   const toggleNav = () => {
     setNavOpen((curNav) => !curNav)
   }
-  // useEffect(() => {
-  //   window.addEventListener('click', (e: Event) => {
-  //     const navBar = document.getElementById('navBar');
-  //     if(navBar && !navBar.contains(e.target as Node) && navOpen) {
-  //       console.log("toggel nav");
-        
-  //       toggleNav();
-  //     }
-  //   })
-  // })
+  const closeNav = () => {
+    setNavOpen(false)
+  }
+  useEffect(() => {
+    window.addEventListener('click', (e: Event) => {
+      const navBar = document.getElementById('navBar');
+      if(navBar && !navBar.contains(e.target as Node) && navOpen) {
+        closeNav();
+      }
+    })
+  })
   return (
     <nav className='bg-slate-600 border-grey-200' id='navBar'>
       <div className="flex max-w-screen-xl flex-wrap items-center justify-between mx-auto p-4">
-        <Link className='text-lg md:text-3xl font-bold flex' href={'/'}>
+        <Link className='text-lg md:text-3xl font-bold flex' href={'/'} onClick={closeNav}>
 
           Welcome to Echo <span className='block md:hidden'>{user && user.username && `, ${user.username}`}</span>
         </Link>
@@ -54,7 +55,7 @@ export const Header = () => {
       <div className='hidden md:flex flex-row space-x-5 text-lg px-3 py-1'>
         {subEchos?.map((echo) => <Link className='italic font-semibold underline hover:text-slate-200' key={echo.id} href={`/echo/${echo.title}`}>{echo.title}</Link>)}
       </div>
-      {navOpen && (<div className='flex h-fill space-x-2 pb-10 justify-between'>
+      {navOpen && (<div className='flex h-screen space-x-2 pb-10 justify-between'>
         <div className="flex flex-col px-1">
           {isSignedIn ? <UserButton appearance={{
             elements: {
@@ -67,11 +68,11 @@ export const Header = () => {
             }
 
           }} afterSignOutUrl="/" showName /> : <SignInButton />}
-          <Link href={'/echo'}>Echos</Link>
+          <Link href={'/echo'} onClick={closeNav}>Echos</Link>
         </div>
         <div className='flex flex-col space-y-5 text-lg px-3 py-1'>
           <span>Echo List</span>
-          {subEchos?.map((echo) => <Link className='italic font-semibold underline hover:text-slate-200 bg-slate-800 w-full rounded p-1 ' key={echo.id} href={`/echo/${echo.title}`} onClick={toggleNav}>{echo.title}</Link>)}
+          {subEchos?.map((echo) => <Link className='italic font-semibold underline hover:text-slate-200 bg-slate-800 w-full rounded p-1 ' key={echo.id} href={`/echo/${echo.title}`} onClick={closeNav}>{echo.title}</Link>)}
         </div>
         <div></div>
       </div>)}

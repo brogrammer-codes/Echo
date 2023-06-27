@@ -53,7 +53,13 @@ const getMappedPosts = async (posts: Post[], ctx: {
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    const posts = await ctx.prisma.post.findMany({ take: 100, orderBy: { createdAt: 'desc' } })
+    // const orderByCommentsAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "asc"}}
+    // const orderByCommentsDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "desc"}}
+    // const orderByLikesDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "desc"}}
+    // const orderByLikesAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "asc"}}
+
+    
+    const posts = await ctx.prisma.post.findMany({ orderBy:{createdAt: 'desc'}})
     if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
     const mappedPosts = getMappedPosts(posts, ctx)
     return mappedPosts
@@ -61,7 +67,8 @@ export const postRouter = createTRPCRouter({
   getPostsByEchoId: publicProcedure
     .input(z.object({ echoId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
-      const subPosts = await ctx.prisma.post.findMany({ where: { echoId: input.echoId }, take: 100, orderBy: {createdAt: "desc"} })
+      const orderBy: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {createdAt: 'desc'}
+      const subPosts = await ctx.prisma.post.findMany({ where: { echoId: input.echoId }, take: 100, orderBy})
       
       if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
       // console.log("map: ", subPosts[0]);

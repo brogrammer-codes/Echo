@@ -42,9 +42,11 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
 
   const { mutate: likePostMutate, isLoading: likeLoading } = api.posts.likePost.useMutation({
     onSuccess: () => {
+      // TODO: Move to correct onSuccess callbacks
       void ctx.posts.getAll.invalidate();
       void ctx.posts.getPostById.invalidate()
       void ctx.posts.getPostsByEchoId.invalidate()
+      toast.success("Post updated!")
     },
     onError: (e) => {
       if (e.message) toast.error(e.message)

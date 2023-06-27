@@ -1,3 +1,4 @@
+import { clerkClient } from "@clerk/nextjs";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
@@ -7,7 +8,7 @@ export const subEchoRouter = createTRPCRouter({
     return await ctx.prisma.subEcho.findMany()
   }),
   getHeaderEcho: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.subEcho.findMany({take: 5})
+    return await ctx.prisma.subEcho.findMany({take: 5, orderBy: {createdAt: 'desc'}})
   }),
   getSubEchoByName: publicProcedure
     .input(z.object({ name: z.string().min(1).max(50) }))
@@ -31,5 +32,14 @@ export const subEchoRouter = createTRPCRouter({
       const echo = await ctx.prisma.subEcho.create({data: {title: title.toLocaleLowerCase(), authorId: userId, description}})
       return echo
       
+    }),
+    getAllCount: publicProcedure.query(async ({ ctx }) => {
+      const count = {
+        echoSpaces: 0, 
+        users: 0,
+      }
+      count.echoSpaces = (await ctx.prisma.subEcho.findMany()).length
+      count.users = await clerkClient.users.getCount()
+      return count
     }),
 });

@@ -26,7 +26,10 @@ export const CreateCommentWizard = ({ submitComment, commentLoading }: CreateCom
     const commentRef = useRef<HTMLTextAreaElement>(null)
     if (!user) return null
     const createComment = () => {
-        if (commentRef.current) submitComment(commentRef.current.value)
+        if (commentRef.current) {
+            submitComment(commentRef.current.value)
+            commentRef.current.value = ''
+        }
     }
     return (
         <div className="flex flex-row space-x-2 py-3 px-1">
