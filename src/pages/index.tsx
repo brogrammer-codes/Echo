@@ -31,10 +31,9 @@ export default function Home() {
   // const { data, isLoading } = api.posts.getAll.useQuery()
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
   const [orderVal, setOrderVal] = useState<string>('asc')
-  const { data, isLoading } = api.posts.getAll.useQuery()
   const [posts, setPosts,] = useState<PostWithUser[]>([])
+  const { data, isLoading } = api.posts.getAll.useQuery()
   const { data: count } = api.subEcho.getAllCount.useQuery()
-  const { } = useUser()
   useEffect(() => {
     data && setPosts([...data])
   }, [data])

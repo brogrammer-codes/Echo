@@ -61,7 +61,7 @@ export const postRouter = createTRPCRouter({
     
     const posts = await ctx.prisma.post.findMany({ orderBy:{createdAt: 'desc'}})
     if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
-    const mappedPosts = await getMappedPosts(posts, ctx)
+    const mappedPosts = getMappedPosts(posts, ctx)
     return mappedPosts
   }),
   getPostsByEchoId: publicProcedure
