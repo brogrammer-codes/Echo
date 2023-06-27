@@ -15,6 +15,7 @@ type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
 
 export const Post = (props: PostWithUser) => {
+  // pass these fields into the POST card so we don't invoke the get post by ID call every card (might be causing too many callbacks error)
   const { likePost, likeLoading, deletePost } = usePost({ postId: props.id })
 
   const { user } = useUser()

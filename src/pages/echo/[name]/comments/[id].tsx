@@ -34,7 +34,6 @@ const sideBar = (title: string, description: string, likes: number,) => {
   )
 }
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
-  const commentRef = useRef<HTMLTextAreaElement>(null)
   const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted!") } })
   const { user } = useUser()
 
@@ -47,11 +46,6 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
   const submitPostComment = (content: string, parentId: string | undefined = undefined) => {
     addComment({ postId: id, content, parentCommentId: parentId })
   }
-  const likePostOnClick = () => {
-    if (!user) toast.error("You need to sign in to echo a post!")
-    else likePost({ postId: id })
-  }
-
 
   return (
     <>

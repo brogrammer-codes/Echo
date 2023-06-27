@@ -52,25 +52,16 @@ const getMappedPosts = async (posts: Post[], ctx: {
 }
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.input(z.object({orderKey: z.string().min(1).optional(), orderVal: z.string().min(1).optional()})).query(async ({ ctx, input }) => {
-    let orderByObj:Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {createdAt: 'desc'}
-    const orderByCommentsAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "asc"}}
-    const orderByCommentsDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "desc"}}
-    const orderByLikesDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "desc"}}
-    const orderByLikesAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "asc"}}
-    if (input.orderKey === 'likes') {
-      if(input.orderVal === 'asc') orderByObj = {likes: { _count: 'asc'}}
-      else orderByObj = {likes: { _count: 'desc'}}
-    } else if (input.orderKey === 'createdAt') {
-      if(input.orderVal === 'asc') orderByObj = {createdAt: 'asc'}
-      else  orderByObj = {createdAt: 'desc'}
-      // orderByObj = {likes: { _count: 'desc'}}
-    }
-console.log(orderByObj);
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    // const orderByCommentsAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "asc"}}
+    // const orderByCommentsDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "desc"}}
+    // const orderByLikesDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "desc"}}
+    // const orderByLikesAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "asc"}}
 
-    const posts = await ctx.prisma.post.findMany({ take: 10, orderBy:orderByObj})
+    
+    const posts = await ctx.prisma.post.findMany({ orderBy:{createdAt: 'desc'}})
     if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
-    const mappedPosts = getMappedPosts(posts, ctx)
+    const mappedPosts = await getMappedPosts(posts, ctx)
     return mappedPosts
   }),
   getPostsByEchoId: publicProcedure
