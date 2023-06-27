@@ -1,35 +1,15 @@
 
 
-import { api, RouterOutputs } from "~/utils/api";
+import { api } from "~/utils/api";
 import toast from "react-hot-toast";
-import { typeToFlattenedError } from "zod";
+import { showZodError } from "./helpers";
 
 interface usePostProps {
   postId?: string,
   onCommentSuccess?: () => void
   onCreatePostSuccess?: () => void
 }
-const showZodError = (e: typeToFlattenedError<any, string>) => {
-  const errorMessage = e.fieldErrors
-  const title = errorMessage?.title
-  const echo = errorMessage?.echo
-  const description = errorMessage?.description
-  const url = errorMessage?.url
-  if (url && url[0]) {
-    toast.error(url[0])
-  } if(title && title[0]) {
-    toast.error(title[0])
-    
-  } if(echo && echo[0]) {
-    toast.error(echo[0])
-    
-  } if(description && description[0]) {
-    toast.error(description[0])
-  } 
-  else {
-    toast.error("Failed to post")
-  }
-}
+
 export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePostProps) => {
   const ctx = api.useContext()
   let post = null
@@ -43,9 +23,9 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
   const { mutate: likePostMutate, isLoading: likeLoading } = api.posts.likePost.useMutation({
     onSuccess: () => {
       // TODO: Move to correct onSuccess callbacks
-      void ctx.posts.getAll.invalidate();
-      void ctx.posts.getPostById.invalidate()
-      void ctx.posts.getPostsByEchoId.invalidate()
+      // void ctx.posts.getAll.invalidate();
+      // void ctx.posts.getPostById.invalidate()
+      // void ctx.posts.getPostsByEchoId.invalidate()
       toast.success("Post updated!")
     },
     onError: (e) => {

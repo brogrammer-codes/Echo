@@ -6,6 +6,7 @@ import { CreatePostWizard } from "~/components/createPostWizard";
 import { useEffect, useState } from "react";
 import { clerkClient } from "@clerk/nextjs/server";
 import dayjs from "dayjs";
+import { useGetAllPosts } from "~/hooks";
 
 
 
@@ -28,30 +29,13 @@ const sideBar = (echoCount: number, userCount: number) => {
   )
 }
 export default function Home() {
-  // const { data, isLoading } = api.posts.getAll.useQuery()
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
-  const [orderVal, setOrderVal] = useState<string>('asc')
-  const [posts, setPosts,] = useState<PostWithUser[]>([])
-  const { data, isLoading } = api.posts.getAll.useQuery()
-  const { data: count } = api.subEcho.getAllCount.useQuery()
-  useEffect(() => {
-    data && setPosts([...data])
-  }, [data])
-  useEffect(() => {
-    const newPosts = posts
-    if (orderKey === 'likes') {
-      if (orderVal === 'asc') newPosts.sort((a, b) => a.likes.length - b.likes.length)
-      if (orderVal === 'desc') newPosts.sort((a, b) => b.likes.length - a.likes.length)
-    }
-    if (orderKey === 'createdAt') {
-      if (orderVal === 'asc') newPosts.sort((a, b) => dayjs(a.createdAt).diff(dayjs(b.createdAt)))
-      if (orderVal === 'desc') newPosts.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))
-    }
-    setPosts([...newPosts])
-  }, [orderKey, orderVal])
+  const [orderVal, setOrderVal] = useState<string>('desc')
+  const {posts, postsLoading, allPostsError} = useGetAllPosts(orderVal, orderKey)
+  // const { data: count } = api.subEcho.getAllCount.useQuery()
 
-  if (isLoading) return <LoadingPage />
-  if (!data || !posts) return <div>Could not load feed</div>
+  if (postsLoading) return <LoadingPage />
+  if (!posts || allPostsError) return <div>Error Loading Feed, please refresh page. </div>
 
   return (
     <div className="flex flex-row w-full">
@@ -71,7 +55,7 @@ export default function Home() {
         }
       </div>
       <div className="hidden md:flex flex-col w-1/3">
-        {count && sideBar(count.echoSpaces, count.users)}
+        {/* {count && sideBar(count.echoSpaces, count.users)} */}
       </div>
     </div>
   );

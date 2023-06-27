@@ -40,6 +40,7 @@ const getMappedPosts = async (posts: Post[], ctx: {
     
     // if (!user)
     //   user = {username: '[deleted]', id: '', profileImageUrl: ''}
+    
     return {
       ...post,
       echoName: subEcho?.title,
@@ -52,14 +53,26 @@ const getMappedPosts = async (posts: Post[], ctx: {
 }
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAll: publicProcedure.input(z.object({ sortKey: z.string().min(1).optional(), sortValue: z.string().min(1).optional()})).query(async ({ ctx, input }) => {
+    const orderBy: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {}
+
     // const orderByCommentsAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "asc"}}
     // const orderByCommentsDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {comments: { _count: "desc"}}
     // const orderByLikesDesc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "desc"}}
     // const orderByLikesAsc: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = {likes: { _count: "asc"}}
+    if(input.sortKey && input.sortValue) {
+      if(input.sortKey === 'createdAt') {
 
+        if(input.sortValue === 'asc') orderBy.createdAt = 'asc'
+        if(input.sortValue === 'desc') orderBy.createdAt = 'desc'
+      } else if(input.sortKey === 'likes') {
+        if(input.sortValue === 'asc') orderBy.comments = { _count: "asc"}
+        if(input.sortValue === 'desc') orderBy.comments = { _count: "desc"}
+      }
+    }
     
-    const posts = await ctx.prisma.post.findMany({ orderBy:{createdAt: 'desc'}})
+    
+    const posts = await ctx.prisma.post.findMany({take: 25, orderBy, include: {likes: true, comments: true, echo: true}})    
     if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
     const mappedPosts = getMappedPosts(posts, ctx)
     return mappedPosts
