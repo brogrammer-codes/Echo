@@ -38,7 +38,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
     posts && setPosts([...posts])
   }, [posts])
   useEffect(() => {
-    let newPosts = pagePosts
+    const newPosts = pagePosts
     if (orderKey === 'likes') {
       if (orderVal === 'asc') newPosts.sort((a, b) => a.likes.length - b.likes.length)
       if (orderVal === 'desc') newPosts.sort((a, b) => b.likes.length - a.likes.length)
