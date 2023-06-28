@@ -32,7 +32,7 @@ export default function Home() {
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
   const [orderVal, setOrderVal] = useState<string>('desc')
   const {posts, postsLoading, allPostsError} = useGetAllPosts(orderVal, orderKey)
-  // const { data: count } = api.subEcho.getAllCount.useQuery()
+  const { data: count } = api.subEcho.getAllCount.useQuery()
 
   if (postsLoading) return <LoadingPage />
   if (!posts || allPostsError) return <div>Error Loading Feed, please refresh page. </div>
@@ -42,8 +42,8 @@ export default function Home() {
       <div className="flex flex-col w-full md:w-2/3 p-2">
         <div className="flex flex-row space-x-2">
 
-          <button onClick={() => { setOrderVal('asc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Least Liked First</button>
-          <button onClick={() => { setOrderVal('desc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Most Liked First</button>
+          {/* <button onClick={() => { setOrderVal('asc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Least Liked First</button>
+          <button onClick={() => { setOrderVal('desc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Most Liked First</button> */}
           <button onClick={() => { setOrderVal('asc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Oldest First</button>
           <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
         </div>
@@ -55,7 +55,7 @@ export default function Home() {
         }
       </div>
       <div className="hidden md:flex flex-col w-1/3">
-        {/* {count && sideBar(count.echoSpaces, count.users)} */}
+        {count && sideBar(count.echoSpaces, count.users)}
       </div>
     </div>
   );
