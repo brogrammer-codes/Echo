@@ -24,7 +24,7 @@ export const subEchoRouter = createTRPCRouter({
       if(!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
       return subEcho
     }),
-    create: privateProcedure.input(z.object({ title: z.string().min(1).max(100), description:z.string().max(255).optional()})).mutation(async ({ ctx, input }) => {
+    create: privateProcedure.input(z.object({ title: z.string().min(1).max(100), description:z.string().max(500).optional()})).mutation(async ({ ctx, input }) => {
       const userId = ctx.userId
       const {title, description = ''} = input
       const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: title.toLocaleLowerCase() } });
@@ -42,4 +42,19 @@ export const subEchoRouter = createTRPCRouter({
       count.users = await clerkClient.users.getCount()
       return count
     }),
+    updateSubEcho: privateProcedure.input(z.object({echoId: z.string().min(1).max(100), description: z.string().min(1).max(500)})).mutation(async ({ ctx, input }) => {
+      const userId = ctx.userId
+      const {echoId, description} = input
+      const echo = await ctx.prisma.subEcho.findUnique({ where: { id: input.echoId } })
+      if (echo?.authorId !== userId) throw new TRPCError({ code: "FORBIDDEN" })
+      const updatedEcho = await ctx.prisma.subEcho.update({
+        where: {
+          id: input.echoId,
+        },
+        data: {
+          description: input.description,
+        },
+      })
+      return updatedEcho
+    })
 });

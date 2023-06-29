@@ -5,19 +5,41 @@ import type { NextPage, GetStaticProps } from "next";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Head from "next/head";
 import { CreatePostWizard } from "~/components/createPostWizard";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
+import { auth, useUser } from "@clerk/nextjs";
+import { Textarea } from "~/components/atoms";
 
 
-type PostWithUser = RouterOutputs["posts"]["getAll"][number]
+type SubEcho = RouterOutputs["subEcho"]["getSubEchoByName"]
 
-const sideBar = (title: string, description: string, numPosts: number,) => {
+const sideBar = (echo: SubEcho, numPosts: number) => {
+  const {user} = useUser()
+  const ctx = api.useContext()
+  const [editDescription, setEditDescription] = useState<boolean>(false)
+  const descRef = useRef<HTMLTextAreaElement>(null)
 
+  const {id, title, description, authorId} = echo
+  useEffect(() => {
+    if(descRef.current) descRef.current.value = description
+  }, [])
+  
+  const {mutate} = api.subEcho.updateSubEcho.useMutation({
+    onSuccess: () => {
+     void ctx.subEcho.getSubEchoByName.invalidate()
+     toggleEditDescription()
+    }
+  })
+  const toggleEditDescription = () => {
+    setEditDescription(!editDescription)
+    // descRef?.current.value = echo.description
+  }
   return (
     <div className="flex flex-col space-y-3 py-4 px-2">
 
       <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
-      <span className="font-normal text-lg text-slate-400">{description} </span>
+      <Textarea inputRef={descRef} disabled={!editDescription}/>
+      {user && user.id === authorId ? (editDescription ? <div><button onClick={toggleEditDescription}>Cancel</button> <button onClick={() => mutate({description:  descRef?.current && descRef.current.value ||description , echoId: id})}>Save</button> </div> : <button onClick={toggleEditDescription}>Edit </button>) : null}
       <div className="flex flex-row space-x-3">
 
         {numPosts ? <span className="font-normal italic text-lg text-slate-400">{numPosts} posts</span> : null}
@@ -63,7 +85,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
           </div>
         </div>
         <div className="hidden md:flex flex-col w-1/3">
-          {sideBar(data.title, data.description, posts?.length || 0)}
+          {sideBar(data, posts?.length || 0)}
           <CreatePostWizard currentEchoName={data.title} />
         </div>
       </div>
