@@ -5,13 +5,14 @@ import { clerkClient, type User } from "@clerk/nextjs/server";
 import type { Post, Prisma, PrismaClient, Comment, Like } from "@prisma/client";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import { getUrlMetadata } from "~/server/helpers/urlMetadata";
+import { createFindManyPostQuery } from "~/server/helpers/postQuery";
 
 const getMappedComments = async (comments: Comment[]) => {
   const userId = comments.map((comment) => comment.authorId);
   const users = (await clerkClient.users.getUserList({
     userId: userId, limit: 100,
   })).map(filterUserForClient)
-  return comments.length && comments.map((comment) => {
+  return comments.map((comment) => {
     let author = users.find((user) => user.id === comment.authorId)
 
     if (!author) author = { username: '[deleted]', id: '', profileImageUrl: '' }
@@ -41,7 +42,8 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
     const user = userId ? await clerkClient.users.getUser(userId).then(filterUserForClient).catch() : { username: '[deleted]', id: '', profileImageUrl: '' };
 
 
-    const mappedComments = comments ? await getMappedComments(comments) : []
+    // const mappedComments = comments ? await getMappedComments(comments) : []
+    const mappedComments = await getMappedComments(comments || [])
     const metadata = await getUrlMetadata(post.url)
 
     // if (!user)
@@ -50,7 +52,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
     return {
       ...post,
       echoName: subEcho?.title,
-      likes,
+      likes: likes || [],
       comments: mappedComments,
       user,
       metadata,
@@ -60,73 +62,21 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.input(z.object({ sortKey: z.string().min(1).optional(), sortValue: z.string().min(1).optional() })).query(async ({ ctx, input }) => {
-    let postQuery: Prisma.PostFindManyArgs = {
-      include: {
-        likes: true,
-        comments: true,
-      },
-    };
+    const postQuery = createFindManyPostQuery({...input})
 
-    if (input.sortKey && input.sortValue) {
-      if (input.sortKey === 'createdAt') {
-        if (input.sortValue === 'asc') {
-          postQuery = {
-            orderBy: { createdAt: 'asc' },
-            include: {
-              likes: true,
-              comments: true
-            }
-          }
-        }
-        if (input.sortValue === 'desc') {
-          postQuery = {
-            orderBy: { createdAt: 'desc' },
-            include: {
-              likes: true,
-              comments: true
-            }
-          }
-        }
-      } else if (input.sortKey === 'likes') {
-        if (input.sortValue === 'asc') {
-          postQuery = {
-            orderBy: { createdAt: 'asc' },
-            include: {
-              likes: {orderBy: { createdAt: 'asc'}},
-              comments: true
-            }
-          }
-        }
-        if (input.sortValue === 'desc') {
-          postQuery = {
-            orderBy: {
-              likes: {
-                _count: 'asc'
-              }
-            },
-            include: {
-              likes: true,
-              comments: true
-            }
-          }
-        }
-      }
-    }
     const posts = await ctx.prisma.post.findMany({...postQuery});
     if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
     const mappedPosts = getMappedPosts(posts, ctx)
     return mappedPosts
   }),
   getPostsByEchoId: publicProcedure
-    .input(z.object({ echoId: z.string().min(1) }))
+    .input(z.object({ echoId: z.string().min(1), sortKey: z.string().min(1).optional(), sortValue: z.string().min(1).optional() }))
     .query(async ({ ctx, input }) => {
       const orderBy: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = { createdAt: 'desc' }
+      const postQuery = createFindManyPostQuery({...input})
+
       const subPosts = await ctx.prisma.post.findMany({
-        where: { echoId: input.echoId }, take: 100, orderBy, include: {
-          likes: true,
-          comments: { orderBy: { createdAt: 'desc' } },
-        },
-      })
+        where: { echoId: input.echoId }, take: 100, ...postQuery})
 
       if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
       // console.log("map: ", subPosts[0]);
@@ -136,7 +86,7 @@ export const postRouter = createTRPCRouter({
   getPostById: publicProcedure
     .input(z.object({ id: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
-      let postQuery: Prisma.PostFindUniqueArgs = {
+      const postQuery: Prisma.PostFindUniqueArgs = {
         where: {
           id: input.id
         },

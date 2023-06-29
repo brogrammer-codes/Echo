@@ -30,23 +30,9 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
   // move logic for sorting to custom hook
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
   const [orderVal, setOrderVal] = useState<string>('asc')
-  const [pagePosts, setPosts,] = useState<PostWithUser[]>([])
-  const { data: posts, isLoading: postsLoading } = api.posts.getPostsByEchoId.useQuery({ echoId: data?.id || '' })
-  useEffect(() => {
-    posts && setPosts([...posts])
-  }, [posts])
-  useEffect(() => {
-    const newPosts = pagePosts
-    if (orderKey === 'likes') {
-      if (orderVal === 'asc') newPosts.sort((a, b) => a.likes.length - b.likes.length)
-      if (orderVal === 'desc') newPosts.sort((a, b) => b.likes.length - a.likes.length)
-    }
-    if (orderKey === 'createdAt') {
-      if (orderVal === 'asc') newPosts.sort((a, b) => dayjs(a.createdAt).diff(dayjs(b.createdAt)))
-      if (orderVal === 'desc') newPosts.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))
-    }
-    setPosts([...newPosts])
-  }, [orderKey, orderVal])
+  // const [pagePosts, setPosts,] = useState<PostWithUser[]>([])
+  const { data: posts, isLoading: postsLoading } = api.posts.getPostsByEchoId.useQuery({ echoId: data?.id || '', sortKey: orderKey, sortValue: orderVal })
+
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load feed</div>
 
@@ -72,7 +58,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
           <div className="flex flex-col">
 
             {
-              !postsLoading ? pagePosts?.map((post) => <Post key={post.id} {...post} />) : <LoadingPage />
+              !postsLoading ? posts?.map((post) => <Post key={post.id} {...post} />) : <LoadingPage />
             }
           </div>
         </div>

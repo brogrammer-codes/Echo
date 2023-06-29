@@ -11,7 +11,7 @@ import { useGetAllPosts } from "~/hooks";
 
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
-const welcomeMessage = "This website was created using the t3 stack. It has the some basic functionality, at it's base it is a forum-based website that allows users to submit posts, which can include text, links, images, and videos, and interact with those posts through comments and likes. There are multiple Sub Echo Spaces you can visit and intract with. You can also create your own spaces. Try to keep it civil or I'll have to delete ya. "
+const welcomeMessage = "This website was created using the t3 stack. This is in an experemental state so if things are broken please let me know. It has the some basic functionality, at it's base it is a forum-based website that allows users to submit posts, which can include text, links, images, and videos, and interact with those posts through comments and likes. There are multiple Sub Echo Spaces you can visit and intract with. You can also create your own spaces. Try to keep it civil or I'll have to delete ya. "
 const sideBar = (echoCount: number, userCount: number) => {
 
   return (
@@ -35,15 +35,14 @@ export default function Home() {
   const { data: count } = api.subEcho.getAllCount.useQuery()
 
   if (postsLoading) return <LoadingPage />
-  if (!posts || allPostsError) return <div>Error Loading Feed, please refresh page. </div>
 
   return (
     <div className="flex flex-row w-full">
       <div className="flex flex-col w-full md:w-2/3 p-2">
         <div className="flex flex-row space-x-2">
 
-          {/* <button onClick={() => { setOrderVal('asc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Least Liked First</button>
-          <button onClick={() => { setOrderVal('desc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Most Liked First</button> */}
+          <button onClick={() => { setOrderVal('asc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Least Liked First</button>
+          <button onClick={() => { setOrderVal('desc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Most Liked First</button>
           <button onClick={() => { setOrderVal('asc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Oldest First</button>
           <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
         </div>
@@ -51,7 +50,7 @@ export default function Home() {
           <CreatePostWizard />
         </div>
         {
-          posts.map((post) => <Post key={post.id} {...post} />)
+          (!posts || allPostsError)  ? (<div>Error Loading Feed, please refresh page. </div>) : posts.map((post) => <Post key={post.id} {...post} />)
         }
       </div>
       <div className="hidden md:flex flex-col w-1/3">
