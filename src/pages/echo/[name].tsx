@@ -12,8 +12,11 @@ import { Textarea } from "~/components/atoms";
 
 
 type SubEcho = RouterOutputs["subEcho"]["getSubEchoByName"]
-
-const sideBar = (echo: SubEcho, numPosts: number) => {
+interface SideBarProps {
+  echo: SubEcho;
+  numPosts: number
+}
+const SideBar = ({echo, numPosts}: SideBarProps) => {
   const { user } = useUser()
   const ctx = api.useContext()
   const [editDescription, setEditDescription] = useState<boolean>(false)
@@ -103,7 +106,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
           </div>
         </div>
         <div className="hidden sm:flex flex-col w-1/3">
-          {sideBar(data, posts?.length || 0)}
+          <SideBar echo={data} numPosts={posts?.length || 0}/>
           <CreatePostWizard currentEchoName={data.title} />
         </div>
       </div>
