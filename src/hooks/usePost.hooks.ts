@@ -58,7 +58,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
     }
   })
 
-  const {mutate: deletePost} = api.posts.deletePost.useMutation({
+  const {mutate: deletePost, isLoading: deleteLoading} = api.posts.deletePost.useMutation({
     onSuccess: () => {
       void ctx.posts.getAll.invalidate();
       void ctx.posts.getPostById.invalidate()
@@ -81,5 +81,6 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
     createPost,
     createPostLoading,
     deletePost,
+    deleteLoading
   }
 }
