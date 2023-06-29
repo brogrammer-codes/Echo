@@ -11,12 +11,13 @@ interface SortInput {
 
 export const createFindManyPostQuery = (input: SortInput): Prisma.PostFindManyArgs => {
   const postQuery: Prisma.PostFindManyArgs = {
+    take: 10, 
     include: {
       likes: true,
       comments: true,
     },
   };
-  
+
   if (input.sortKey && input.sortValue) {
     if (input.sortKey === 'createdAt') {
       postQuery.orderBy = { createdAt: input.sortValue as Prisma.SortOrder };
