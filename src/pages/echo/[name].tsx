@@ -1,4 +1,4 @@
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { Post } from "~/components/Post";
 import { api, RouterOutputs } from "~/utils/api";
 import type { NextPage, GetStaticProps } from "next";
@@ -14,34 +14,52 @@ import { Textarea } from "~/components/atoms";
 type SubEcho = RouterOutputs["subEcho"]["getSubEchoByName"]
 
 const sideBar = (echo: SubEcho, numPosts: number) => {
-  const {user} = useUser()
+  const { user } = useUser()
   const ctx = api.useContext()
   const [editDescription, setEditDescription] = useState<boolean>(false)
   const descRef = useRef<HTMLTextAreaElement>(null)
 
-  const {id, title, description, authorId} = echo
+  const { id, title, description, authorId } = echo
   useEffect(() => {
-    if(descRef.current) descRef.current.value = description
+    if (descRef.current) descRef.current.value = description
   }, [])
-  
-  const {mutate} = api.subEcho.updateSubEcho.useMutation({
+
+  const { mutate, isLoading } = api.subEcho.updateSubEcho.useMutation({
     onSuccess: () => {
-     void ctx.subEcho.getSubEchoByName.invalidate()
-     toggleEditDescription()
+      void ctx.subEcho.getSubEchoByName.invalidate()
+      toggleEditDescription()
     }
   })
   const toggleEditDescription = () => {
+    if(descRef.current) descRef.current.focus()
     setEditDescription(!editDescription)
-    // descRef?.current.value = echo.description
+  }
+  const editButton = () => {
+    if (!user || user.id !== authorId) return null
+    if (editDescription) {
+      return (
+        <div className="flex w-full space-x-4">
+          <button onClick={toggleEditDescription} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-lg px-5 py-1 mr-2 mb-2" disabled={isLoading}>{isLoading ? <LoadingSpinner /> : "Cancel"}</button> 
+          <button onClick={() => mutate({ description: descRef?.current && descRef.current.value || description, echoId: id })} className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-lg px-5 py-1 mr-2 mb-2" disabled={isLoading}>{isLoading ? <LoadingSpinner /> : "Save"}</button> 
+        </div>
+      )
+    } else {
+      return (
+        <div className="flex w-full space-x-4">
+          <button className="focus:outline-none text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-lg px-5 py-1 mr-2 mb-2" onClick={toggleEditDescription}>Edit </button>
+        </div>
+      )
+    }
   }
   return (
     <div className="flex flex-col space-y-3 py-4 px-2">
 
       <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
-      <Textarea inputRef={descRef} disabled={!editDescription}/>
-      {user && user.id === authorId ? (editDescription ? <div><button onClick={toggleEditDescription}>Cancel</button> <button onClick={() => mutate({description:  descRef?.current && descRef.current.value ||description , echoId: id})}>Save</button> </div> : <button onClick={toggleEditDescription}>Edit </button>) : null}
+      <div className="flex h-56">
+      <Textarea inputRef={descRef} disabled={!editDescription} />
+      </div>
+      {editButton()}
       <div className="flex flex-row space-x-3">
-
         {numPosts ? <span className="font-normal italic text-lg text-slate-400">{numPosts} posts</span> : null}
       </div>
     </div>
@@ -84,7 +102,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
             }
           </div>
         </div>
-        <div className="hidden md:flex flex-col w-1/3">
+        <div className="hidden sm:flex flex-col w-1/3">
           {sideBar(data, posts?.length || 0)}
           <CreatePostWizard currentEchoName={data.title} />
         </div>
