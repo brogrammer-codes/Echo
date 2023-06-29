@@ -6,11 +6,12 @@ import { CreatePostWizard } from "~/components/createPostWizard";
 import { useEffect, useState } from "react";
 import { clerkClient } from "@clerk/nextjs/server";
 import dayjs from "dayjs";
+import { useGetAllPosts } from "~/hooks";
 
 
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
-const welcomeMessage = "This website was created using the t3 stack. It has the some basic functionality, at it's base it is a forum-based website that allows users to submit posts, which can include text, links, images, and videos, and interact with those posts through comments and likes. There are multiple Sub Echo Spaces you can visit and intract with. You can also create your own spaces. Try to keep it civil or I'll have to delete ya. "
+const welcomeMessage = "This website was created using the t3 stack. This is in an experemental state so if things are broken please let me know. It has the some basic functionality, at it's base it is a forum-based website that allows users to submit posts, which can include text, links, images, and videos, and interact with those posts through comments and likes. There are multiple Sub Echo Spaces you can visit and intract with. You can also create your own spaces. Try to keep it civil or I'll have to delete ya. "
 const sideBar = (echoCount: number, userCount: number) => {
 
   return (
@@ -28,30 +29,12 @@ const sideBar = (echoCount: number, userCount: number) => {
   )
 }
 export default function Home() {
-  // const { data, isLoading } = api.posts.getAll.useQuery()
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
-  const [orderVal, setOrderVal] = useState<string>('asc')
-  const [posts, setPosts,] = useState<PostWithUser[]>([])
-  const { data, isLoading } = api.posts.getAll.useQuery()
+  const [orderVal, setOrderVal] = useState<string>('desc')
+  const {posts, postsLoading, allPostsError} = useGetAllPosts(orderVal, orderKey)
   const { data: count } = api.subEcho.getAllCount.useQuery()
-  useEffect(() => {
-    data && setPosts([...data])
-  }, [data])
-  useEffect(() => {
-    const newPosts = posts
-    if (orderKey === 'likes') {
-      if (orderVal === 'asc') newPosts.sort((a, b) => a.likes.length - b.likes.length)
-      if (orderVal === 'desc') newPosts.sort((a, b) => b.likes.length - a.likes.length)
-    }
-    if (orderKey === 'createdAt') {
-      if (orderVal === 'asc') newPosts.sort((a, b) => dayjs(a.createdAt).diff(dayjs(b.createdAt)))
-      if (orderVal === 'desc') newPosts.sort((a, b) => dayjs(b.createdAt).diff(dayjs(a.createdAt)))
-    }
-    setPosts([...newPosts])
-  }, [orderKey, orderVal])
 
-  if (isLoading) return <LoadingPage />
-  if (!data || !posts) return <div>Could not load feed</div>
+  if (postsLoading) return <LoadingPage />
 
   return (
     <div className="flex flex-row w-full">
@@ -67,7 +50,7 @@ export default function Home() {
           <CreatePostWizard />
         </div>
         {
-          posts.map((post) => <Post key={post.id} {...post} />)
+          (!posts || allPostsError)  ? (<div>Error Loading Feed, please refresh page. </div>) : posts.map((post) => <Post key={post.id} {...post} />)
         }
       </div>
       <div className="hidden md:flex flex-col w-1/3">
