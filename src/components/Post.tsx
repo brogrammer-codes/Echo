@@ -8,21 +8,23 @@ import { EchoButton } from "./molecules";
 import { usePost } from "~/hooks";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useState } from "react";
+import { LoadingSpinner } from "./loading";
 dayjs.extend(relativeTime);
 
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
 interface PostCardProps {
-  post: PostWithUser, 
+  post: PostWithUser,
   likePost: (postId: string) => void,
-  likeLoading: boolean, 
+  likeLoading: boolean,
   deletePost: (postId: string) => void
 }
 
 export const Post = (props: PostWithUser) => {
   // pass these fields into the POST card so we don't invoke the get post by ID call every card (might be causing too many callbacks error)
-  const { likePost, likeLoading, deletePost } = usePost({})
+  const { likePost, likeLoading, deletePost, deleteLoading } = usePost({})
 
   const { user } = useUser()
   const ctx = api.useContext()
@@ -36,35 +38,58 @@ export const Post = (props: PostWithUser) => {
   const PostLink = () => {
     return (
       <Link href={props.url} className="flex w-5 ml-4" target={'_blank'}>
-  
+
         <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" strokeLinecap="round" strokeLinejoin="round"></path>
         </svg>
       </Link>
     )
   }
+  const DeleteButton = () => {
+    const [showDeleteOption, setShowDeleteOption] = useState<boolean>(false)
+    if (!user || user.id !== props.authorId) return null
+    const toggleDeleteOption = () => {
+      setShowDeleteOption((option) => !option)
+    }
+    const deletePostOnClick = () => {
+      deletePost({ id: props.id })
+    }
+    if(deleteLoading) return <div className="flex w-8 items-center"><LoadingSpinner /></div>
+    if (showDeleteOption) {
+      return (
+        <div className="flex flex-row space-x-2">
+          <span className="text-slate-500 italic font-semibold">Are you sure?</span>
+          <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={deletePostOnClick}>Yes</button>
+          <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={toggleDeleteOption}>Cancel</button>
+        </div>
+      )
+    }
+    return (
+      <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={toggleDeleteOption}>Delete</button>
+    )
+  }
   return (
-    <div className="flex flex-col rounded border-b border-slate-400 p-4">
+    <div className="flex flex-col p-4">
 
       {props.metadata?.imageUrl && (
         <Link href={props.url} target={"_blank"} className="h-48 sm:h-80 w-full overflow-hidden">
           <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg w-full" />
         </Link>
       )}
-      <div className="flex flex-row gap-3 p-3">
+      <div className="flex flex-row gap-3 bg-slate-900 rounded p-5">
 
         <div className="flex flex-col gap-3 w-5/6">
+          <div className="flex text-sm font-thin space-x-3 items-center">{props.user.profileImageUrl && <Image alt="profile image" src={props.user.profileImageUrl} width={56} height={56} className="h-8 w-8 rounded-full" />}<span className="inline-block align-middle font-bold">{props.user.username}</span><span className="font-thin">{` · ${dayjs(props.createdAt).fromNow()}`}</span></div>
           <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`}>
             <span className="flex font-bold text-4xl">{props.title} {props.url && !props.metadata?.imageUrl && <PostLink />}</span>
           </Link>
-          <div className="flex text-sm font-thin space-x-3 align-middle"><Image alt="profile image" src={props.user.profileImageUrl} width={56} height={56} className="h-8 w-8 rounded-full" /><span className="inline-block align-middle font-bold">{props.user.username}</span><span className="font-thin">{` · ${dayjs(props.createdAt).fromNow()}`}</span></div>
           <span className="font-semibold text-sm">
             {props.description}
           </span>
           <div className="flex flex-row space-x-4">
             <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{props.comments.length} comments</span></Link>
             <Link href={`/echo/${props?.echoName ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{`e/${props?.echoName || ''}`}</span></Link>
-            {user && user.id === props.authorId && <span className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={() => deletePost({id: props.id})}>Delete</span>}
+            <DeleteButton />
           </div>
         </div>
         <div className="flex w-1/6 flex-col">

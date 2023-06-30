@@ -34,7 +34,7 @@ const sideBar = (title: string, description: string, likes: number,) => {
   )
 }
 const PostPage: NextPage<{ id: string }> = ({ id }) => {
-  const { post, postLoading, addComment, commentLoading, likePost, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted!") } })
+  const { post, postLoading, addComment, commentLoading, deleteComment, likeLoading } = usePost({ postId: id, onCommentSuccess: () => { toast.success("Comment posted!") } })
   const { user } = useUser()
 
 
@@ -59,7 +59,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
           <div className="flex flex-col">
 
             {
-              post.comments.length ? !postLoading ? <DisplayCommentTree comments={post.comments} parentId={null} indent={0} submitPostComment={submitPostComment} /> : <LoadingPage /> : null
+              post.comments.length ? !postLoading ? <DisplayCommentTree comments={post.comments} parentId={null} indent={0} submitPostComment={submitPostComment} deleteComment={(commentId) => deleteComment({id:commentId})}/> : <LoadingPage /> : null
             }
           </div>
         </div>
