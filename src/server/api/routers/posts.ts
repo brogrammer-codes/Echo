@@ -135,6 +135,14 @@ export const postRouter = createTRPCRouter({
     return comment
 
   }),
+  deleteComment: privateProcedure.input(z.object({ id: z.string().min(1).max(255) })).mutation(async ({ ctx, input }) => {
+
+    const userId = ctx.userId
+    const comment = await ctx.prisma.comment.findUnique({ where: { id: input.id } })
+    if (comment?.authorId !== userId) throw new TRPCError({ code: "FORBIDDEN" })
+    await ctx.prisma.comment.update({ where: { id: input.id }, data: { authorId: '' } })
+    return true
+  }),
   likePost: privateProcedure.input(z.object({ postId: z.string().min(1) })).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
     const postLikes = await ctx.prisma.like.findMany({ where: { postId: input.postId } })

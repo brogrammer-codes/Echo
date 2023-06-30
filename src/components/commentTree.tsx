@@ -15,12 +15,13 @@ interface DisplayCommentTreeProps {
   parentId: string | null,
   indent: number,
   submitPostComment: (comment: string, parentId?: string | undefined) => void,
+  deleteComment: (commentId: string) => void
 }
 interface CommentLeafProps extends DisplayCommentTreeProps {
   comment: PostComments[0]
 }
 const CommentLeaf = (props: CommentLeafProps) => {
-  const { comments, parentId, indent, submitPostComment, comment } = props
+  const { comments, parentId, indent, submitPostComment, comment, deleteComment } = props
   const { id, content, author, createdAt } = comment;
   const { user } = useUser()
   const childComments = comments.filter((comment) => comment.parentCommentId === id)
@@ -32,7 +33,28 @@ const CommentLeaf = (props: CommentLeafProps) => {
     submitPostComment(comment, id)
     toggleReply()
   }
-
+  const DeleteButton = () => {
+    const [showDeleteOption, setShowDeleteOption] = useState<boolean>(false)
+    if (!user || user.id !== comment.authorId) return null
+    const toggleDeleteOption = () => {
+      setShowDeleteOption((option) => !option)
+    }
+    const deletePostOnClick = () => {
+      deleteComment(comment.id)
+    }
+    if (showDeleteOption) {
+      return (
+        <div className="flex flex-row space-x-2">
+          <span className="text-slate-500 italic font-semibold">Are you sure?</span>
+          <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={deletePostOnClick}>Yes</button>
+          <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={toggleDeleteOption}>Cancel</button>
+        </div>
+      )
+    }
+    return (
+      <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={toggleDeleteOption}>Delete</button>
+    )
+  }
   return (
     <li className="m-1">
       <div className="flex flex-row bg-slate-950 p-2 rounded">
@@ -47,8 +69,9 @@ const CommentLeaf = (props: CommentLeafProps) => {
           <p className="font-normal text-lg">{content}</p>
           <div className="text-xs font-bold">
             {user && (
-              <div>
-                <span onClick={toggleReply}>Reply</span>
+              <div className="flex space-x-2">
+                <button className="text-slate-500 italic font-semibold underline hover:cursor-pointer" onClick={toggleReply}>Reply</button>
+                <DeleteButton />
               </div>
             )}
             <span>{`${childComments.length} comments`}</span>
@@ -59,12 +82,12 @@ const CommentLeaf = (props: CommentLeafProps) => {
         </div>
         {childComments.length ? <button onClick={toggleCommentTree}>{showCommentTree ? "[-]" : "[+]"}</button> : null}
       </div>
-      {showCommentTree && <DisplayCommentTree comments={comments} parentId={id} indent={indent + 1} submitPostComment={submitPostComment} />}
+      {showCommentTree && <DisplayCommentTree comments={comments} parentId={id} indent={indent + 1} submitPostComment={submitPostComment} deleteComment={deleteComment}/>}
     </li>
   );
 }
 export const DisplayCommentTree = (props: DisplayCommentTreeProps) => {
-  const { comments, parentId, indent, submitPostComment } = props
+  const { comments, parentId, indent } = props
   const parentComments = comments.filter((comment) => comment.parentCommentId === parentId);
   const { user } = useUser()
   return (

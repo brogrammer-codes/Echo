@@ -43,6 +43,14 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
       toast.error("Could not post comment")
     }
   })
+  const { mutate: deleteCommentMutate } = api.posts.deleteComment.useMutation({
+    onSuccess: () => {
+      void ctx.posts.getPostById.invalidate()
+    },
+    onError: () => {
+      toast.error("Could not delete comment")
+    }
+  })
 
   const { mutate: createPost, isLoading: createPostLoading } = api.posts.create.useMutation({
     onSuccess: () => {
@@ -81,6 +89,7 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
     createPost,
     createPostLoading,
     deletePost,
-    deleteLoading
+    deleteLoading,
+    deleteComment: deleteCommentMutate
   }
 }
