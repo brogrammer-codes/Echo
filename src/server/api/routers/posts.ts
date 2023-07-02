@@ -102,7 +102,7 @@ export const postRouter = createTRPCRouter({
     }),
   create: privateProcedure.input(z.object({
     title: z.string().min(1).max(100),
-    url: z.string().url("Enter a URL").max(255).optional(),
+    url: z.string().min(0).url("Enter a URL").max(255).or(z.literal('')),
     echo: z.string().min(1).max(50),
     description: z.string().max(255).optional()
   }
