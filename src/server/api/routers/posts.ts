@@ -104,7 +104,7 @@ export const postRouter = createTRPCRouter({
     title: z.string().min(1).max(100),
     url: z.string().min(0).url("Enter a URL").max(255).or(z.literal('')),
     echo: z.string().min(1).max(50),
-    description: z.string().max(255).optional()
+    description: z.string().max(1000).optional()
   }
   )).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
