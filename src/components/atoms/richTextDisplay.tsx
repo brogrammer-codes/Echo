@@ -10,7 +10,7 @@ const RichTextDisplay: React.FC<Props> = ({ value }) => {
     __html: DOMPurify.sanitize(value)
   })
   return (
-    <div>
+    <div className='rich-text-display'>
       <span dangerouslySetInnerHTML={sanitizedValue()} className="list-disc list-inside" />
     </div>
   )
