@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { auth, useUser } from "@clerk/nextjs";
 import { Textarea } from "~/components/atoms";
+import Link from "next/link";
 
 
 type SubEcho = RouterOutputs["subEcho"]["getSubEchoByName"]
@@ -95,8 +96,8 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
             <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
           </div>
           <div className="block md:hidden">
-
-            <CreatePostWizard currentEchoName={data.title} />
+          <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={{ pathname: '/new', query: { echoName: name } }}>Create Post</Link>
+            {/* <CreatePostWizard currentEchoName={data.title} /> */}
           </div>
           <div className="flex flex-col">
 
@@ -107,7 +108,8 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
         </div>
         <div className="hidden sm:flex flex-col w-1/3">
           <SideBar echo={data} numPosts={posts?.length || 0}/>
-          <CreatePostWizard currentEchoName={data.title} />
+          <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={{ pathname: '/new', query: { echoName: name } }}>Create Post</Link>
+          {/* <CreatePostWizard currentEchoName={data.title} /> */}
         </div>
       </div>
     </>

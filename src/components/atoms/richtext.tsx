@@ -19,7 +19,7 @@ const style = {
   input: "h-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 disabled:bg-transparent disabled:border-none disabled:resize-none disabled:text-slate-50"
 }
 
-export const RichText: React.FC<RichTextProps> = ({value, setValue, edit, preview}) => {
+export const RichText: React.FC<RichTextProps> = ({ value, setValue, edit, preview }) => {
   const modules = {
     toolbar: [
       [{ header: '1' }, { header: '2' }, { font: [] }],
@@ -31,7 +31,7 @@ export const RichText: React.FC<RichTextProps> = ({value, setValue, edit, previe
         { indent: '-1' },
         { indent: '+1' },
       ],
-      ['link', 'image', 'video'],
+      ['link', 'video'],
       ['clean'],
     ],
     clipboard: {
@@ -62,9 +62,21 @@ export const RichText: React.FC<RichTextProps> = ({value, setValue, edit, previe
   //   console.log(value);
 
   return (
-    <div>
-      {setValue && <QuillNoSSRWrapper theme="snow" onChange={(event) => setValue(event)} value={value} modules={modules} formats={formats} onBlur={(_, __, editor) => setValue(editor.getHTML())} readOnly={!edit}/>}
-      {preview && <RichTextDisplay value={value}/>}
+    <div className='flex w-full flex-col'>
+      {setValue && (
+        <div className="py-3 m-1 block h-auto">
+
+          <QuillNoSSRWrapper
+            theme="snow"
+            onChange={(event) => setValue(event)}
+            value={value}
+            modules={modules}
+            formats={formats}
+            onBlur={(_, __, editor) => setValue(editor.getHTML())}
+            readOnly={!edit} />
+        </div>
+      )}
+      {preview && <RichTextDisplay value={value} />}
     </div>
   )
 

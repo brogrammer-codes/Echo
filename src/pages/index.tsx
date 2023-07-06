@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { clerkClient } from "@clerk/nextjs/server";
 import dayjs from "dayjs";
 import { useGetAllPosts } from "~/hooks";
+import Link from "next/link";
 
 
 
@@ -24,7 +25,8 @@ const sideBar = (echoCount: number, userCount: number) => {
         {echoCount && <span className="font-normal italic text-lg text-slate-400">{echoCount} Echo Spaces</span>}
         {userCount && <span className="font-normal italic text-lg text-slate-400">{userCount} Users</span>}
       </div>
-      <CreatePostWizard />
+      <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={'/new'}>Create Post</Link>
+      {/* <CreatePostWizard /> */}
     </div>
   )
 }
@@ -47,7 +49,8 @@ export default function Home() {
           <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
         </div>
         <div className="block md:hidden">
-          <CreatePostWizard />
+          {/* <CreatePostWizard /> */}
+          <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={'/new'}>Create Post</Link>
         </div>
         {
           (!posts || allPostsError)  ? (<div>Error Loading Feed, please refresh page. </div>) : posts.map((post) => <Post key={post.id} {...post} />)

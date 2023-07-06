@@ -3,9 +3,11 @@ import { useRef, useState } from "react";
 import { Button, Input, RichText, Textarea } from "~/components/atoms";
 import { api, RouterOutputs } from "~/utils/api"
 import { usePost } from "~/hooks";
+import { LoadingPage } from "./loading";
 
 interface CreatePostWizardProps {
   currentEchoName?: string;
+  postUrl?: string;
 }
 type UrlMetadata = RouterOutputs["posts"]["getMetadataFromUrl"]
 export const CreatePostWizard = (props: CreatePostWizardProps) => {
@@ -16,25 +18,25 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
 
   const postDescription = useRef<HTMLTextAreaElement>(null)
   const postEcho = useRef<HTMLInputElement>(null)
-  const [showInputForm, setShowInputForm] = useState(false)
-  const {createPost, createPostLoading} = usePost({onCreatePostSuccess: () => setShowInputForm(false)})
-  const {mutate: getUrlMetadata} = api.posts.getMetadataFromUrl.useMutation({
+  const [showInputForm, setShowInputForm] = useState(true)
+  const { createPost, createPostLoading } = usePost({ onCreatePostSuccess: () => setShowInputForm(false) })
+  const { mutate: getUrlMetadata } = api.posts.getMetadataFromUrl.useMutation({
     onSuccess: (metadata: UrlMetadata) => {
-      if(metadata) {
-        if(postTitle.current && postTitle.current?.value === '' &&  metadata.title) {
+      if (metadata) {
+        if (postTitle.current && postTitle.current?.value === '' && metadata.title) {
           postTitle.current.value = metadata.title
         }
-        if(postDescription.current && description === '' && metadata.description) {
+        if (postDescription.current && description === '' && metadata.description) {
           setDescription(metadata.description)
         }
       }
     }
   })
 
-  if (!user) return null
+  if (!user) return <LoadingPage />
   const getUrlMetadataOnBlur = () => {
-    if(postUrl?.current){
-      getUrlMetadata({url: postUrl?.current.value})
+    if (postUrl?.current) {
+      getUrlMetadata({ url: postUrl?.current.value })
     }
   }
   const submitForm = () => {
@@ -45,17 +47,21 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
 
   }
   return (
-    <div className="flex gap-3 m-2 p-1">
+    <div className="flex w-full gap-3 m-2 p-1">
       <div className="w-full">
-        <button className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" onClick={() => setShowInputForm(!showInputForm)} disabled={createPostLoading}>{showInputForm ? "Hide" : "Create Post"}</button>
-        {showInputForm && (<div className="block flex flex-col space-y-3 w-full">
-          <Input inputRef={postTitle} placeholder="Post Title" />
-          <Input inputRef={postUrl} placeholder="Post URL" onBlur={getUrlMetadataOnBlur}/>
+        <div className="block flex flex-col space-y-3 w-full">
+          <span>Post title</span>
+          <Input inputRef={postTitle} placeholder="Check out this neat post about..." />
+          <span>URL you are sharing a link</span>
+          <Input inputRef={postUrl} placeholder="Post URL" onBlur={getUrlMetadataOnBlur} />
           {/* <Textarea inputRef={postDescription} placeholder="Post Description" /> */}
-          <RichText value={description} setValue={setDescription} edit preview/>
-          {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` :<Input inputRef={postEcho} placeholder="Echo Name" />}
-          <Button buttonText="Submit Post" onClick={submitForm} disabled={createPostLoading}/>
-        </div>)}
+          <div className="flex w-full h-auto flex-col">
+            <button>Show Preview</button>
+            <RichText value={description} setValue={setDescription} edit preview />
+          </div>
+          {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` : <Input inputRef={postEcho} placeholder="Echo Name" />}
+          <Button buttonText="Submit Post" onClick={submitForm} disabled={createPostLoading} />
+        </div>
       </div>
     </div>
   )
