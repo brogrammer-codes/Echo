@@ -8,7 +8,7 @@ import { CreatePostWizard } from "~/components/createPostWizard";
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { auth, useUser } from "@clerk/nextjs";
-import { Textarea } from "~/components/atoms";
+import { RichText, Textarea } from "~/components/atoms";
 import Link from "next/link";
 
 
@@ -18,12 +18,13 @@ interface SideBarProps {
   numPosts: number
 }
 const SideBar = ({echo, numPosts}: SideBarProps) => {
+  const { id, title, description, authorId } = echo
   const { user } = useUser()
   const ctx = api.useContext()
   const [editDescription, setEditDescription] = useState<boolean>(false)
+  const [descriptionState, setDescriptionState] = useState<string>(description)
   const descRef = useRef<HTMLTextAreaElement>(null)
 
-  const { id, title, description, authorId } = echo
   useEffect(() => {
     if (descRef.current) descRef.current.value = description
   }, [])
@@ -35,7 +36,7 @@ const SideBar = ({echo, numPosts}: SideBarProps) => {
     }
   })
   const toggleEditDescription = () => {
-    if(descRef.current) descRef.current.focus()
+    !editDescription && setDescriptionState(description)
     setEditDescription(!editDescription)
   }
   const editButton = () => {
@@ -44,7 +45,7 @@ const SideBar = ({echo, numPosts}: SideBarProps) => {
       return (
         <div className="flex w-full space-x-4">
           <button onClick={toggleEditDescription} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-lg px-5 py-1 mr-2 mb-2" disabled={isLoading}>{isLoading ? <LoadingSpinner /> : "Cancel"}</button> 
-          <button onClick={() => mutate({ description: descRef?.current && descRef.current.value || description, echoId: id })} className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-lg px-5 py-1 mr-2 mb-2" disabled={isLoading}>{isLoading ? <LoadingSpinner /> : "Save"}</button> 
+          <button onClick={() => mutate({ description:descriptionState , echoId: id })} className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-lg px-5 py-1 mr-2 mb-2" disabled={isLoading}>{isLoading ? <LoadingSpinner /> : "Save"}</button> 
         </div>
       )
     } else {
@@ -60,7 +61,8 @@ const SideBar = ({echo, numPosts}: SideBarProps) => {
 
       <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
       <div className="flex h-56">
-      <Textarea inputRef={descRef} disabled={!editDescription} />
+        <RichText value={descriptionState} setValue={setDescriptionState} edit={editDescription} preview={!editDescription}/>
+      {/* <Textarea inputRef={descRef} disabled={!editDescription} /> */}
       </div>
       {editButton()}
       <div className="flex flex-row space-x-3">

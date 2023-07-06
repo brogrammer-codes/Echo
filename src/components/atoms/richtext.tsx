@@ -63,7 +63,7 @@ export const RichText: React.FC<RichTextProps> = ({ value, setValue, edit, previ
 
   return (
     <div className='flex w-full flex-col'>
-      {setValue && (
+      {setValue && edit && (
         <div className="py-3 m-1 block h-auto">
 
           <QuillNoSSRWrapper
