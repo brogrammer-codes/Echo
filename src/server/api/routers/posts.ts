@@ -72,7 +72,6 @@ export const postRouter = createTRPCRouter({
   getPostsByEchoId: publicProcedure
     .input(z.object({ echoId: z.string().min(1), sortKey: z.string().min(1).optional(), sortValue: z.string().min(1).optional() }))
     .query(async ({ ctx, input }) => {
-      const orderBy: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> | undefined = { createdAt: 'desc' }
       const postQuery = createFindManyPostQuery({...input})
 
       const subPosts = await ctx.prisma.post.findMany({
@@ -104,7 +103,7 @@ export const postRouter = createTRPCRouter({
     title: z.string().min(1).max(100),
     url: z.string().min(0).url("Enter a URL").max(255).or(z.literal('')),
     echo: z.string().min(1).max(50),
-    description: z.string().max(255).optional()
+    description: z.string().max(5000).optional()
   }
   )).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId

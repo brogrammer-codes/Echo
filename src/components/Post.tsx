@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useState } from "react";
 import { LoadingSpinner } from "./loading";
+import RichTextDisplay from "./atoms/richTextDisplay";
 dayjs.extend(relativeTime);
 
 
@@ -84,7 +85,7 @@ export const Post = (props: PostWithUser) => {
             <span className="flex font-bold text-4xl">{props.title} {props.url && !props.metadata?.imageUrl && <PostLink />}</span>
           </Link>
           <span className="font-semibold text-sm">
-            {props.description}
+            <RichTextDisplay value={props.description}/>
           </span>
           <div className="flex flex-row space-x-4">
             <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{props.comments.length} comments</span></Link>

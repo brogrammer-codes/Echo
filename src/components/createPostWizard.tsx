@@ -1,6 +1,6 @@
 import { useUser } from "@clerk/nextjs";
 import { useRef, useState } from "react";
-import { Button, Input, Textarea } from "~/components/atoms";
+import { Button, Input, RichText, Textarea } from "~/components/atoms";
 import { api, RouterOutputs } from "~/utils/api"
 import { usePost } from "~/hooks";
 
@@ -12,6 +12,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
   const { user } = useUser()
   const postTitle = useRef<HTMLInputElement>(null)
   const postUrl = useRef<HTMLInputElement>(null)
+  const [description, setDescription] = useState<string>('')
+
   const postDescription = useRef<HTMLTextAreaElement>(null)
   const postEcho = useRef<HTMLInputElement>(null)
   const [showInputForm, setShowInputForm] = useState(false)
@@ -22,8 +24,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
         if(postTitle.current && postTitle.current?.value === '' &&  metadata.title) {
           postTitle.current.value = metadata.title
         }
-        if(postDescription.current && postDescription.current?.value === '' && metadata.description) {
-          postDescription.current.value = metadata.description
+        if(postDescription.current && description === '' && metadata.description) {
+          setDescription(metadata.description)
         }
       }
     }
@@ -37,8 +39,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
   }
   const submitForm = () => {
     const echoName = props.currentEchoName || (postEcho.current && postEcho.current.value) || ''
-    if (postTitle.current && postUrl.current && postDescription.current) {
-      createPost({ title: postTitle.current.value, url: postUrl.current.value, echo: echoName, description: postDescription.current.value })
+    if (postTitle.current && postUrl.current) {
+      createPost({ title: postTitle.current.value, url: postUrl.current.value, echo: echoName, description })
     }
 
   }
@@ -49,7 +51,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
         {showInputForm && (<div className="block flex flex-col space-y-3 w-full">
           <Input inputRef={postTitle} placeholder="Post Title" />
           <Input inputRef={postUrl} placeholder="Post URL" onBlur={getUrlMetadataOnBlur}/>
-          <Textarea inputRef={postDescription} placeholder="Post Description" />
+          {/* <Textarea inputRef={postDescription} placeholder="Post Description" /> */}
+          <RichText value={description} setValue={setDescription} edit preview/>
           {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` :<Input inputRef={postEcho} placeholder="Echo Name" />}
           <Button buttonText="Submit Post" onClick={submitForm} disabled={createPostLoading}/>
         </div>)}

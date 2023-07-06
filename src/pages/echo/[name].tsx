@@ -72,7 +72,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
   const { data, isLoading } = api.subEcho.getSubEchoByName.useQuery({ name })
   // move logic for sorting to custom hook
   const [orderKey, setOrderKey,] = useState<string>('createdAt')
-  const [orderVal, setOrderVal] = useState<string>('asc')
+  const [orderVal, setOrderVal] = useState<string>('desc')
   // const [pagePosts, setPosts,] = useState<PostWithUser[]>([])
   const { data: posts, isLoading: postsLoading } = api.posts.getPostsByEchoId.useQuery({ echoId: data?.id || '', sortKey: orderKey, sortValue: orderVal })
 

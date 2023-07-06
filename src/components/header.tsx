@@ -37,7 +37,7 @@ export const Header = () => {
         <div className="hidden w-full md:block md:w-auto" id="navbar-default">
           <div className="flex flex-row space-x-4">
 
-        <Link href={'/echo'} className="text-lg text-slate-50 font-bold">Echos</Link>
+        
           {isSignedIn ? <UserButton appearance={{
             elements: {
               userButtonAvatarBox: {
@@ -54,6 +54,7 @@ export const Header = () => {
       </div>
       <div className='hidden md:flex flex-row space-x-5 text-lg px-3 py-1'>
         {subEchos?.map((echo) => <Link className='italic font-semibold underline hover:text-slate-200' key={echo.id} href={`/echo/${echo.title}`}>{echo.title}</Link>)}
+        <Link href={'/echo'} className="italic font-semibold underline hover:text-slate-200">...more</Link>
       </div>
       {navOpen && (<div className='flex h-screen space-x-2 pb-10 justify-between'>
         <div className="flex flex-col px-1">
@@ -68,11 +69,12 @@ export const Header = () => {
             }
 
           }} afterSignOutUrl="/" showName /> : <SignInButton />}
-          <Link href={'/echo'} onClick={closeNav}>Echos</Link>
+          
         </div>
         <div className='flex flex-col space-y-5 text-lg px-3 py-1'>
           <span>Echo List</span>
           {subEchos?.map((echo) => <Link className='italic font-semibold underline hover:text-slate-200 bg-slate-800 w-full rounded p-1 ' key={echo.id} href={`/echo/${echo.title}`} onClick={closeNav}>{echo.title}</Link>)}
+          <Link href={'/echo'} className='italic font-semibold underline hover:text-slate-200 bg-slate-800 w-full rounded p-1 ' onClick={closeNav}>...more</Link>
         </div>
         <div></div>
       </div>)}
