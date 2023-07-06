@@ -5,9 +5,7 @@ interface Props {
   value: string;
 }
 
-const RichTextDisplay: React.FC<Props> = ({ value }) => {
-  console.log(value);
-  
+const RichTextDisplay: React.FC<Props> = ({ value }) => {  
   const sanitizedValue = () => ({
     __html: DOMPurify.sanitize(value)
   })
