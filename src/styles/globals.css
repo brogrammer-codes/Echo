@@ -8,23 +8,40 @@ body {
     overscroll-behavior: none;
 }
 
-ol {
+.rich-text-display ol {
     list-style-type :decimal;
     margin-left: 1em;
 }
-ul {
+.rich-text-display ul {
     list-style-type: disc;
     margin-left: 1em;
 }
-ul .ql-indent-1 {
+.rich-text-display ul .ql-indent-1 {
     margin-left: 1.5em;
 }
-ul .ql-indent-2 {
+.rich-text-display ul .ql-indent-2 {
     margin-left: 2em;
 }
-ul .ql-indent-3 {
+.rich-text-display ul .ql-indent-3 {
     margin-left: 2.5em;
 }
 .ql-size-large {
     font-size: large;
+}
+.rich-text-display h1 {
+    font-size: 3em;
+    padding: 1px;
+}
+.rich-text-display h2 {
+    font-size: 1.5em;
+    padding: 1px;
+}
+.rich-text-display a {
+    font-style: italic;
+    text-decoration: underline;
+}
+.rich-text-display a:hover {
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: underline;
 }
