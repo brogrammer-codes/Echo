@@ -20,7 +20,10 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
   const [description, setDescription] = useState<string>('')
   const postEcho = useRef<HTMLInputElement>(null)
   const [showPreview, setShowPreview] = useState(false)
-  const { createPost, createPostLoading } = usePost({ onCreatePostSuccess: (echoName, id) => router.push(`/echo/${echoName}/comments/${id}`) })
+  const routeToPost = (echoName: string, id: string) => {
+    router.push(`/echo/${echoName}/comments/${id}`).catch(() => null)
+  }
+  const { createPost, createPostLoading } = usePost({ onCreatePostSuccess: (echoName, id) => routeToPost(echoName, id) })
   const { mutate: getUrlMetadata } = api.posts.getMetadataFromUrl.useMutation({
     onSuccess: (metadata: UrlMetadata) => {
       if (metadata) {

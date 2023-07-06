@@ -49,10 +49,10 @@ export const subEchoRouter = createTRPCRouter({
       if (echo?.authorId !== userId) throw new TRPCError({ code: "FORBIDDEN" })
       const updatedEcho = await ctx.prisma.subEcho.update({
         where: {
-          id: input.echoId,
+          id: echoId,
         },
         data: {
-          description: input.description,
+          description,
         },
       })
       return updatedEcho
