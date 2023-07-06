@@ -4,6 +4,7 @@ import { Button, Input, RichText, Textarea } from "~/components/atoms";
 import { api, RouterOutputs } from "~/utils/api"
 import { usePost } from "~/hooks";
 import { LoadingPage } from "./loading";
+import { useRouter } from 'next/router';
 
 interface CreatePostWizardProps {
   currentEchoName?: string;
@@ -11,6 +12,8 @@ interface CreatePostWizardProps {
 }
 type UrlMetadata = RouterOutputs["posts"]["getMetadataFromUrl"]
 export const CreatePostWizard = (props: CreatePostWizardProps) => {
+  const router = useRouter()
+
   const { user } = useUser()
   const postTitle = useRef<HTMLInputElement>(null)
   const postUrl = useRef<HTMLInputElement>(null)
@@ -18,8 +21,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
 
   const postDescription = useRef<HTMLTextAreaElement>(null)
   const postEcho = useRef<HTMLInputElement>(null)
-  const [showInputForm, setShowInputForm] = useState(true)
-  const { createPost, createPostLoading } = usePost({ onCreatePostSuccess: () => setShowInputForm(false) })
+  const [showPreview, setShowPreview] = useState(false)
+  const { createPost, createPostLoading } = usePost({ onCreatePostSuccess: (echoName, id) => router.push(`/echo/${echoName}/comments/${id}`) })
   const { mutate: getUrlMetadata } = api.posts.getMetadataFromUrl.useMutation({
     onSuccess: (metadata: UrlMetadata) => {
       if (metadata) {
@@ -56,8 +59,9 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
           <Input inputRef={postUrl} placeholder="Post URL" onBlur={getUrlMetadataOnBlur} />
           {/* <Textarea inputRef={postDescription} placeholder="Post Description" /> */}
           <div className="flex w-full h-auto flex-col">
-            <button>Show Preview</button>
-            <RichText value={description} setValue={setDescription} edit preview />
+            {/* better logic for button flipping state */}
+            <button onClick={() => setShowPreview(!showPreview)}>Show Preview</button>
+            <RichText value={description} setValue={setDescription} edit preview={showPreview} />
           </div>
           {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` : <Input inputRef={postEcho} placeholder="Echo Name" />}
           <Button buttonText="Submit Post" onClick={submitForm} disabled={createPostLoading} />
