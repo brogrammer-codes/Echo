@@ -18,8 +18,6 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
   const postTitle = useRef<HTMLInputElement>(null)
   const postUrl = useRef<HTMLInputElement>(null)
   const [description, setDescription] = useState<string>('')
-
-  const postDescription = useRef<HTMLTextAreaElement>(null)
   const postEcho = useRef<HTMLInputElement>(null)
   const [showPreview, setShowPreview] = useState(false)
   const { createPost, createPostLoading } = usePost({ onCreatePostSuccess: (echoName, id) => router.push(`/echo/${echoName}/comments/${id}`) })
@@ -29,7 +27,7 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
         if (postTitle.current && postTitle.current?.value === '' && metadata.title) {
           postTitle.current.value = metadata.title
         }
-        if (postDescription.current && description === '' && metadata.description) {
+        if (description === '' && metadata.description) {
           setDescription(metadata.description)
         }
       }
@@ -64,7 +62,7 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
             <RichText value={description} setValue={setDescription} edit preview={showPreview} />
           </div>
           {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` : <Input inputRef={postEcho} placeholder="Echo Name" />}
-          <Button buttonText="Submit Post" onClick={submitForm} disabled={createPostLoading} />
+          <Button buttonText={createPostLoading ? "Submitting Post..." : "Submit Post"} onClick={submitForm} disabled={createPostLoading} />
         </div>
       </div>
     </div>
