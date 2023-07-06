@@ -16,7 +16,7 @@ model Post {
     createdAt   DateTime  @default(now())
     title       String    @db.VarChar(100)
     url         String    @db.VarChar(255)
-    description String    @db.VarChar(500)
+    description String    @db.VarChar(5000)
     authorId    String
     echo        SubEcho   @relation(fields: [echoId], references: [id])
     echoId      String

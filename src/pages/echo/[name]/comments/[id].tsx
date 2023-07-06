@@ -28,7 +28,7 @@ const sideBar = (title: string, description: string, likes: number,) => {
       <span className="font-normal text-lg text-slate-400">{description} </span>
       <div className="flex flex-row space-x-3">
 
-        {likes && <span className="font-normal italic text-lg text-slate-400">{likes} Likes</span>}
+        {likes ? <span className="font-normal italic text-lg text-slate-400">{likes} Likes</span> : null}
       </div>
     </div>
   )
