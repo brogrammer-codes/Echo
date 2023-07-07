@@ -19,7 +19,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
   const postTitle = useRef<HTMLInputElement>(null)
   const postUrl = useRef<HTMLInputElement>(null)
   const [description, setDescription] = useState<string>('')
-  const postEcho = useRef<HTMLInputElement>(null)
+  const [postEcho, setPostEcho] = useState<string>(props.currentEchoName || '')
+  // let postEcho: string = props.currentEchoName || ''
   const [showPreview, setShowPreview] = useState(false)
   const routeToPost = (echoName: string, id: string) => {
     router.push(`/echo/${echoName}/comments/${id}`).catch(() => null)
@@ -38,6 +39,10 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
     }
   })
   useEffect(() => {
+    if(props.currentEchoName) setPostEcho(props.currentEchoName)
+  }, [])
+  
+  useEffect(() => {
     if(props.postUrl && postUrl.current) {
       postUrl.current.value = props.postUrl
       getUrlMetadataOnBlur()
@@ -55,9 +60,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
     setShowPreview((prev) => !prev)
   }
   const submitForm = () => {
-    const echoName = props.currentEchoName || (postEcho.current && postEcho.current.value) || ''
     if (postTitle.current && postUrl.current) {
-      createPost({ title: postTitle.current.value, url: postUrl.current.value, echo: echoName, description })
+      createPost({ title: postTitle.current.value, url: postUrl.current.value, echo: postEcho, description })
     }
 
   }
@@ -73,8 +77,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
             <button onClick={togglePreview}>Show Preview</button>
             <RichText value={description} setValue={setDescription} edit preview={showPreview} />
           </div>
-          {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` : <Input inputRef={postEcho} placeholder="Echo Name" />}
-          <SubEchoSearch />
+          {postEcho ? <div className="flex justify-between p-2"> {`Echo Space: ${postEcho}`} <button onClick={() => setPostEcho('')} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-bold rounded-lg text-lg px-4 py-1.5 mr-1.5 mb-1.5">Clear</button></div> : <SubEchoSearch selectEcho={(name) => setPostEcho(name)}/>}
+          
           <Button buttonText={createPostLoading ? "Submitting Post..." : "Submit Post"} onClick={submitForm} disabled={createPostLoading} />
         </div>
       </div>

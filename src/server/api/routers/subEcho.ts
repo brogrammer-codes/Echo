@@ -43,11 +43,13 @@ export const subEchoRouter = createTRPCRouter({
       return count
     }),
     searchSubEchoByName: publicProcedure
-    .input(z.object({ name: z.string().min(1).max(50) }))
+    .input(z.object({ name: z.string().max(50) }))
     .query(async ({ ctx, input }) => {     
-      const searchString = input.name.toLowerCase() 
-      const subEchos = await ctx.prisma.subEcho.findMany({take: 5,  where: { title: {contains: searchString}}, select:{ title: true}})
-      return subEchos || []
+      if(input.name.length){
+        const searchString = input.name.toLowerCase() 
+        const subEchos = await ctx.prisma.subEcho.findMany({take: 5,  where: { title: {contains: searchString}}, select:{ title: true}})
+        return subEchos || []
+      } return []
     }),
     updateSubEcho: privateProcedure.input(z.object({echoId: z.string().min(1).max(100), description: z.string().min(1).max(500)})).mutation(async ({ ctx, input }) => {
       const userId = ctx.userId

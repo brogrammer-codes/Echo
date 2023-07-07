@@ -23,11 +23,10 @@ const SideBar = ({echo, numPosts}: SideBarProps) => {
   const ctx = api.useContext()
   const [editDescription, setEditDescription] = useState<boolean>(false)
   const [descriptionState, setDescriptionState] = useState<string>(description)
-  const descRef = useRef<HTMLTextAreaElement>(null)
-
+    
   useEffect(() => {
-    if (descRef.current) descRef.current.value = description
-  }, [])
+    setDescriptionState(description)
+  }, [description])
 
   const { mutate, isLoading } = api.subEcho.updateSubEcho.useMutation({
     onSuccess: () => {
@@ -60,7 +59,7 @@ const SideBar = ({echo, numPosts}: SideBarProps) => {
     <div className="flex flex-col space-y-3 py-4 px-2">
 
       <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
-      <div className="flex h-56">
+      <div className="flex h-auto">
         <RichText value={descriptionState} setValue={setDescriptionState} edit={editDescription} preview={!editDescription}/>
       {/* <Textarea inputRef={descRef} disabled={!editDescription} /> */}
       </div>

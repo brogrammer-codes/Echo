@@ -14,6 +14,7 @@ export const createFindManyPostQuery = (input: SortInput): Prisma.PostFindManyAr
     take: 10, 
     include: {
       likes: true,
+      dislikes: true,
       comments: true,
     },
   };
