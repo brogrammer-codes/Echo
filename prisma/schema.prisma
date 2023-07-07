@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -21,6 +22,7 @@ model Post {
     echo        SubEcho   @relation(fields: [echoId], references: [id])
     echoId      String
     likes       Like[]
+    dislikes    Dislike[]
     comments    Comment[]
 
     @@index([authorId])
@@ -37,11 +39,21 @@ model Like {
     @@index([postId])
 }
 
+model Dislike {
+    id        String   @id @default(cuid())
+    post      Post     @relation(fields: [postId], references: [id])
+    postId    String
+    userId    String
+    createdAt DateTime @default(now())
+
+    @@index([postId])
+}
+
 model SubEcho {
     id          String   @id @default(cuid())
     createdAt   DateTime @default(now())
     title       String   @unique @db.VarChar(50)
-    description String   @default("") @db.VarChar(500)
+    description String   @default("") @db.VarChar(1000)
     authorId    String
     post        Post[]
 

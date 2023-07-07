@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 // interface SortInput {
 //     sortKey?: 'createdAt' | 'likes';
@@ -14,6 +14,7 @@ export const createFindManyPostQuery = (input: SortInput): Prisma.PostFindManyAr
     take: 10, 
     include: {
       likes: true,
+      dislikes: true,
       comments: true,
     },
   };

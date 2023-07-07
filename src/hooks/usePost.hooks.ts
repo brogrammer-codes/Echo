@@ -7,7 +7,7 @@ import { showZodError } from "./helpers";
 interface usePostProps {
   postId?: string,
   onCommentSuccess?: () => void
-  onCreatePostSuccess?: () => void
+  onCreatePostSuccess?: (echoName: string, postId: string) => void
 }
 
 export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePostProps) => {
@@ -53,11 +53,9 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
   })
 
   const { mutate: createPost, isLoading: createPostLoading } = api.posts.create.useMutation({
-    onSuccess: () => {
-      void ctx.posts.getPostsByEchoId.invalidate()
-      void ctx.posts.getAll.invalidate();
-      onCreatePostSuccess && onCreatePostSuccess()
-      // setShowInputForm(false)
+    onSuccess: (post) => {
+      const {echoName, id} = post
+      onCreatePostSuccess && onCreatePostSuccess(echoName, id)
     },
     onError: (e) => {
       if (e.message) toast.error(e.message)

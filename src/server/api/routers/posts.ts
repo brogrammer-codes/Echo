@@ -111,7 +111,7 @@ export const postRouter = createTRPCRouter({
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: echo } });
     if (!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
     const post = await ctx.prisma.post.create({ data: { title, url, echoId: subEcho.id, description, authorId: userId } })
-    return post
+    return {...post, echoName: input.echo}
 
   }),
   deletePost: privateProcedure.input(z.object({ id: z.string().min(1).max(255) })).mutation(async ({ ctx, input }) => {
