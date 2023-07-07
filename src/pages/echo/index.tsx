@@ -59,7 +59,7 @@ export default function Home() {
   const { data, isLoading } = api.subEcho.getAll.useQuery()
   const router = useRouter()
   const visitEchoPage = (name: string) => {
-    router.push(`/echo/${name}`).catch()
+    router.push(`/echo/${name}`).catch(() => null)
   }
 
   if (isLoading) return <LoadingPage />
