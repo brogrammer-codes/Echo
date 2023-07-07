@@ -18,7 +18,7 @@ export default function New() {
     const { echoName, postUrl } = router.query;
   return (
     <div className="flex flex-row w-full">
-          <CreatePostWizard currentEchoName={echoName?.toString()}/>
+          <CreatePostWizard currentEchoName={echoName?.toString()} postUrl={postUrl?.toString()}/>
 
     </div>
   );

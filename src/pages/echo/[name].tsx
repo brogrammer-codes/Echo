@@ -97,7 +97,7 @@ const EchoPage: NextPage<{ name: string }> = ({ name }) => {
             <button onClick={() => { setOrderVal('asc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Oldest First</button>
             <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
           </div>
-          <div className="block md:hidden">
+          <div className="block sm:hidden my-3 p-2">
           <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={{ pathname: '/new', query: { echoName: name } }}>Create Post</Link>
             {/* <CreatePostWizard currentEchoName={data.title} /> */}
           </div>

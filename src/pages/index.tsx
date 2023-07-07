@@ -48,7 +48,7 @@ export default function Home() {
           <button onClick={() => { setOrderVal('asc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Oldest First</button>
           <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
         </div>
-        <div className="block md:hidden">
+        <div className="block sm:hidden my-3 p-2">
           {/* <CreatePostWizard /> */}
           <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={'/new'}>Create Post</Link>
         </div>
@@ -56,7 +56,7 @@ export default function Home() {
           (!posts || allPostsError)  ? (<div>Error Loading Feed, please refresh page. </div>) : posts.map((post) => <Post key={post.id} {...post} />)
         }
       </div>
-      <div className="hidden md:flex flex-col w-1/3">
+      <div className="hidden sm:flex flex-col w-1/3">
         {count && sideBar(count.echoSpaces, count.users)}
       </div>
     </div>

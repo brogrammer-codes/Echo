@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/nextjs";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button, Input, RichText, Textarea } from "~/components/atoms";
 import { api, RouterOutputs } from "~/utils/api"
 import { usePost } from "~/hooks";
@@ -36,12 +36,22 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
       }
     }
   })
-
+  useEffect(() => {
+    if(props.postUrl && postUrl.current) {
+      postUrl.current.value = props.postUrl
+      getUrlMetadataOnBlur()
+    }
+  }, [props])
+  
   if (!user) return <LoadingPage />
+
   const getUrlMetadataOnBlur = () => {
     if (postUrl?.current) {
       getUrlMetadata({ url: postUrl?.current.value })
     }
+  }
+  const togglePreview = () => {
+    setShowPreview((prev) => !prev)
   }
   const submitForm = () => {
     const echoName = props.currentEchoName || (postEcho.current && postEcho.current.value) || ''
@@ -58,10 +68,8 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
           <Input inputRef={postTitle} placeholder="Check out this neat post about..." />
           <span>URL you are sharing a link</span>
           <Input inputRef={postUrl} placeholder="Post URL" onBlur={getUrlMetadataOnBlur} />
-          {/* <Textarea inputRef={postDescription} placeholder="Post Description" /> */}
           <div className="flex w-full h-auto flex-col">
-            {/* better logic for button flipping state */}
-            <button onClick={() => setShowPreview(!showPreview)}>Show Preview</button>
+            <button onClick={togglePreview}>Show Preview</button>
             <RichText value={description} setValue={setDescription} edit preview={showPreview} />
           </div>
           {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` : <Input inputRef={postEcho} placeholder="Echo Name" />}
