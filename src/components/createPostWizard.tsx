@@ -5,6 +5,7 @@ import { api, RouterOutputs } from "~/utils/api"
 import { usePost } from "~/hooks";
 import { LoadingPage } from "./loading";
 import { useRouter } from 'next/router';
+import { SubEchoSearch } from "./molecules";
 
 interface CreatePostWizardProps {
   currentEchoName?: string;
@@ -73,6 +74,7 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
             <RichText value={description} setValue={setDescription} edit preview={showPreview} />
           </div>
           {props.currentEchoName ? `Echo Space: ${props.currentEchoName}` : <Input inputRef={postEcho} placeholder="Echo Name" />}
+          <SubEchoSearch />
           <Button buttonText={createPostLoading ? "Submitting Post..." : "Submit Post"} onClick={submitForm} disabled={createPostLoading} />
         </div>
       </div>
