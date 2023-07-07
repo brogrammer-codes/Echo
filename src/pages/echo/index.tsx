@@ -8,6 +8,8 @@ import { Button, Input, Textarea } from "~/components/atoms";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
 import RichTextDisplay from "~/components/atoms/richTextDisplay";
+import { SubEchoSearch } from "~/components/molecules";
+import { useRouter } from "next/router";
 
 const EchoSpaceCreateWizard = () => {
   const { user } = useUser()
@@ -55,6 +57,11 @@ const EchoSpaceCreateWizard = () => {
 
 export default function Home() {
   const { data, isLoading } = api.subEcho.getAll.useQuery()
+  const router = useRouter()
+  const visitEchoPage = (name: string) => {
+    router.push(`/echo/${name}`).catch()
+  }
+
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load Echos</div>
   return (
@@ -63,6 +70,9 @@ export default function Home() {
         <div className="block md:hidden">
 
           <EchoSpaceCreateWizard />
+        </div>
+        <div className="flex w-full sm:w-1/2">
+        <SubEchoSearch selectEcho={visitEchoPage}/>
         </div>
         {
           data.map((echo) => (

@@ -15,9 +15,9 @@ export const getUrlMetadata = async (url: string) => {
     try {
         // Fetch the metadata
         const metadata = await urlMetadata(url);
-
+        
         // Extract the necessary properties from the metadata
-        const imageUrl = metadata.image || metadata['og:image'] || metadata['twitter:image'] || null;
+        const imageUrl =  metadata['twitter:image'] || metadata.image || metadata['og:image'] || null;
         const title = metadata.title || metadata.name || metadata['og:title'] || metadata['twitter:title'] || null;
 
         // Validate the imageUrl using the emailSchema

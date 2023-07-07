@@ -81,9 +81,13 @@ export const Post = (props: PostWithUser) => {
 
         <div className="flex flex-col gap-3 w-5/6">
           <div className="flex text-sm font-thin space-x-3 items-center">{props.user.profileImageUrl && <Image alt="profile image" src={props.user.profileImageUrl} width={56} height={56} className="h-8 w-8 rounded-full" />}<span className="inline-block align-middle font-bold">{props.user.username}</span><span className="font-thin">{` · ${dayjs(props.createdAt).fromNow()}`}</span></div>
+          <div className="flex space-x-2">
+
           <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`}>
-            <span className="flex font-bold text-4xl">{props.title} {props.url && !props.metadata?.imageUrl && <PostLink />}</span>
+            <span className="flex font-bold text-4xl">{props.title} </span>
           </Link>
+          {props.url && !props.metadata?.imageUrl && <PostLink />}
+          </div>
           <span className="font-semibold text-sm">
             <RichTextDisplay value={props.description}/>
           </span>
