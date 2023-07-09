@@ -8,6 +8,8 @@ import { clerkClient } from "@clerk/nextjs/server";
 import dayjs from "dayjs";
 import { useGetAllPosts } from "~/hooks";
 import Link from "next/link";
+import { SortPostBar } from "~/components/SortPostBar";
+import { SortOrderVal } from "~/utils/enums";
 
 
 
@@ -31,9 +33,8 @@ const sideBar = (echoCount: number, userCount: number) => {
   )
 }
 export default function Home() {
-  const [orderKey, setOrderKey,] = useState<string>('createdAt')
-  const [orderVal, setOrderVal] = useState<string>('desc')
-  const {posts, postsLoading, allPostsError} = useGetAllPosts(orderVal, orderKey)
+  const [orderKey, setOrderKey,] = useState<SortOrderVal>(SortOrderVal.CREATED_ASC)
+  const {posts, postsLoading, allPostsError} = useGetAllPosts(orderKey)
   const { data: count } = api.subEcho.getAllCount.useQuery()
 
   if (postsLoading) return <LoadingPage />
@@ -41,15 +42,8 @@ export default function Home() {
   return (
     <div className="flex flex-row w-full">
       <div className="flex flex-col w-full md:w-2/3 p-2">
-        <div className="flex flex-row space-x-2">
-
-          <button onClick={() => { setOrderVal('asc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Least Liked First</button>
-          <button onClick={() => { setOrderVal('desc'); setOrderKey('likes') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Most Liked First</button>
-          <button onClick={() => { setOrderVal('asc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Oldest First</button>
-          <button onClick={() => { setOrderVal('desc'); setOrderKey('createdAt') }} className="bg-slate-500 rounded p-2 text-lg font-semibold">Newest First</button>
-        </div>
+        <SortPostBar order={orderKey} setOrder={setOrderKey}/>
         <div className="block sm:hidden my-3 p-2">
-          {/* <CreatePostWizard /> */}
           <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={'/new'}>Create Post</Link>
         </div>
         {

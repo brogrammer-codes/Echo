@@ -61,7 +61,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
 }
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.input(z.object({ sortKey: z.string().min(1).optional(), sortValue: z.string().min(1).optional() })).query(async ({ ctx, input }) => {
+  getAll: publicProcedure.input(z.object({ sortKey: z.string().min(1).optional()})).query(async ({ ctx, input }) => {
     const postQuery = createFindManyPostQuery({...input})
 
     const posts = await ctx.prisma.post.findMany({...postQuery});
@@ -70,7 +70,7 @@ export const postRouter = createTRPCRouter({
     return mappedPosts
   }),
   getPostsByEchoId: publicProcedure
-    .input(z.object({ echoId: z.string().min(1), sortKey: z.string().min(1).optional(), sortValue: z.string().min(1).optional() }))
+    .input(z.object({ echoId: z.string().min(1), sortKey: z.string().min(1).optional() }))
     .query(async ({ ctx, input }) => {
       const postQuery = createFindManyPostQuery({...input})
 
