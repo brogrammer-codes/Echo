@@ -20,7 +20,7 @@
     "@trpc/react-query": "^10.26.0",
     "@trpc/server": "^10.26.0",
     "@upstash/ratelimit": "^0.4.3",
-    "@upstash/redis": "^1.21.0",
+    "@upstash/redis": "^1.22.0",
     "dayjs": "^1.11.8",
     "dompurify": "^3.0.4",
     "isomorphic-dompurify": "^1.7.0",
