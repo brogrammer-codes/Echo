@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/nextjs";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
+import { ratelimit } from "~/server/helpers/ratelimit";
 
 export const subEchoRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -26,6 +27,8 @@ export const subEchoRouter = createTRPCRouter({
     }),
     create: privateProcedure.input(z.object({ title: z.string().min(1).max(100), description:z.string().max(500).optional()})).mutation(async ({ ctx, input }) => {
       const userId = ctx.userId
+      const {success} = await ratelimit.limit(userId)
+      if(!success) throw new TRPCError({code: 'TOO_MANY_REQUESTS'})
       const {title, description = ''} = input
       const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: title.toLocaleLowerCase() } });
       if(subEcho) throw new TRPCError({ code: "CONFLICT", message: "Echo Space with the same name exists" });

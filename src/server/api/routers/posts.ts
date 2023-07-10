@@ -6,6 +6,7 @@ import type { Post, Prisma, PrismaClient, Comment, Like } from "@prisma/client";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import { getUrlMetadata } from "~/server/helpers/urlMetadata";
 import { createFindManyPostQuery } from "~/server/helpers/postQuery";
+import { ratelimit } from "~/server/helpers/ratelimit";
 
 const getMappedComments = async (comments: Comment[]) => {
   const userId = comments.map((comment) => comment.authorId);
@@ -107,6 +108,8 @@ export const postRouter = createTRPCRouter({
   }
   )).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
+    const {success} = await ratelimit.limit(userId)
+    if(!success) throw new TRPCError({code: 'TOO_MANY_REQUESTS'})
     const { title, url = '', echo, description = '' } = input
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: echo } });
     if (!subEcho) throw new TRPCError({ code: "NOT_FOUND" });

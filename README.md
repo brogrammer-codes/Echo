@@ -27,7 +27,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 ## Getting Started
 - Fork or Clone [this repo](https://github.com/brogrammer-codes/Echo)
 - `npm install` or `yarn install` to install `node_modules` and get it up and running
-- Sign up for PlanetScale and Clerk (Services used for DB and user Auth)
+- Sign up for PlanetScale, Clerk, and Upstash (Services used for DB, user Auth, and Rate Limiting)
 - Fill in fields in the `.env` file. 
 - `npm run dev` or `yarn run dev` to start the project up. 
 - Access the application in your browser at `http://localhost:3000`.
