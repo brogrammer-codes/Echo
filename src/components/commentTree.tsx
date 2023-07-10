@@ -91,7 +91,7 @@ export const DisplayCommentTree = (props: DisplayCommentTreeProps) => {
   const parentComments = comments.filter((comment) => comment.parentCommentId === parentId);
   const { user } = useUser()
   return (
-    <ul className={`ml-${indent * 3} p-1`}>
+    <ul className={`ml-${indent * 3} p-1 list-none`}>
       {parentComments.map((comment) => <CommentLeaf key={`comment-${comment.id}-parent-${parentId || ''}`} comment={comment} {...props} />)}
     </ul>
   );

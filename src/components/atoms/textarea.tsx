@@ -1,8 +1,5 @@
 import React from 'react'
 
-// type InputProps  = {
-  
-// }
 interface InputProps extends React.DetailedHTMLProps<React.TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement> {
   inputRef: React.RefObject<HTMLTextAreaElement> | React.LegacyRef<HTMLTextAreaElement>;
 }
@@ -11,8 +8,9 @@ const style = {
 }
 
 export const Textarea: React.FC<InputProps> = (props) => {
+
   return (
-    <textarea 
+    <textarea
       ref={props.inputRef}
       className={style.input}
       {...props}

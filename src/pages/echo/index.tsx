@@ -7,6 +7,9 @@ import Link from "next/link";
 import { Button, Input, Textarea } from "~/components/atoms";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
+import RichTextDisplay from "~/components/atoms/richTextDisplay";
+import { SubEchoSearch } from "~/components/molecules";
+import { useRouter } from "next/router";
 
 const EchoSpaceCreateWizard = () => {
   const { user } = useUser()
@@ -54,6 +57,11 @@ const EchoSpaceCreateWizard = () => {
 
 export default function Home() {
   const { data, isLoading } = api.subEcho.getAll.useQuery()
+  const router = useRouter()
+  const visitEchoPage = (name: string) => {
+    router.push(`/echo/${name}`).catch(() => null)
+  }
+
   if (isLoading) return <LoadingPage />
   if (!data) return <div>Could not load Echos</div>
   return (
@@ -63,12 +71,15 @@ export default function Home() {
 
           <EchoSpaceCreateWizard />
         </div>
+        <div className="flex w-full sm:w-1/2">
+        <SubEchoSearch selectEcho={visitEchoPage}/>
+        </div>
         {
           data.map((echo) => (
             <Link key={echo.id} href={`/echo/${echo.title}`}>
               <div className="flex flex-col p-2 m-1 bg-slate-800 rounded hover:cursor-pointer space-y-2">
                 <span className="font-bold text-2xl">e/{echo.title}</span>
-                <span className="font-medum text-lg">{echo.description}</span>
+                <span className="font-medum text-lg"><RichTextDisplay value={echo.description}/></span>
                 <span className="text-sm italic">{`Created: ${dayjs(echo.createdAt).format('DD/MM/YYYY')}`}</span>
               </div>
             </Link>

@@ -17,6 +17,7 @@ import { EchoButton } from "~/components/molecules";
 import { usePost } from "~/hooks";
 import { CreateCommentWizard } from "~/components/createCommentWizard";
 import { DisplayCommentTree } from "~/components/commentTree";
+import RichTextDisplay from "~/components/atoms/richTextDisplay";
 dayjs.extend(relativeTime);
 
 const sideBar = (title: string, description: string, likes: number,) => {
@@ -25,10 +26,10 @@ const sideBar = (title: string, description: string, likes: number,) => {
     <div className="flex flex-col space-y-3 py-4 px-2">
 
       <h3 className="font-bold text-2xl text-slate-300">{`e/${title}`}</h3>
-      <span className="font-normal text-lg text-slate-400">{description} </span>
+      <span className="font-normal text-lg text-slate-400"><RichTextDisplay value={description}/> </span>
       <div className="flex flex-row space-x-3">
 
-        {likes && <span className="font-normal italic text-lg text-slate-400">{likes} Likes</span>}
+        {likes ? <span className="font-normal italic text-lg text-slate-400">{likes} Likes</span> : null}
       </div>
     </div>
   )

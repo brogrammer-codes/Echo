@@ -42,6 +42,15 @@ export const subEchoRouter = createTRPCRouter({
       count.users = await clerkClient.users.getCount()
       return count
     }),
+    searchSubEchoByName: publicProcedure
+    .input(z.object({ name: z.string().max(50) }))
+    .query(async ({ ctx, input }) => {     
+      if(input.name.length){
+        const searchString = input.name.toLowerCase() 
+        const subEchos = await ctx.prisma.subEcho.findMany({take: 5,  where: { title: {contains: searchString}}, select:{ title: true}})
+        return subEchos || []
+      } return []
+    }),
     updateSubEcho: privateProcedure.input(z.object({echoId: z.string().min(1).max(100), description: z.string().min(1).max(500)})).mutation(async ({ ctx, input }) => {
       const userId = ctx.userId
       const {echoId, description} = input
@@ -49,10 +58,10 @@ export const subEchoRouter = createTRPCRouter({
       if (echo?.authorId !== userId) throw new TRPCError({ code: "FORBIDDEN" })
       const updatedEcho = await ctx.prisma.subEcho.update({
         where: {
-          id: input.echoId,
+          id: echoId,
         },
         data: {
-          description: input.description,
+          description,
         },
       })
       return updatedEcho
