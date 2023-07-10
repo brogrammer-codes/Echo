@@ -2,7 +2,7 @@ import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
 import Image from "next/image";
 
-import { api, RouterOutputs } from "~/utils/api"
+import { RouterOutputs } from "~/utils/api"
 import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
 import { usePost } from "~/hooks";
