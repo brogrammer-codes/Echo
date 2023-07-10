@@ -50,3 +50,8 @@ Contributions to Echo are welcome! If you have any bug fixes, improvements, or n
      - User can create Echo Spaces and Edit Echo Spaces they have created. 
      - User can Create posts in their own echo spaces and create posts in other echo spaces
      - Users can Like posts
+- **[Version 1.0.1](https://github.com/brogrammer-codes/Echo/releases/tag/v1.0.1)** (2023-11-07)
+     - Added Rate Limiting
+     - CI build in GitHub, removed TypeChecks from Vercel
+     - Non Logged in users cannot access new post button
+     - Fixed imports
