@@ -16,19 +16,16 @@ dayjs.extend(relativeTime);
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
 
-interface PostCardProps {
-  post: PostWithUser,
-  likePost: (postId: string) => void,
-  likeLoading: boolean,
-  deletePost: (postId: string) => void
+interface PostCardProps extends PostWithUser{
+  showDescription?: boolean
 }
 
-export const Post = (props: PostWithUser) => {
+export const Post = (props: PostCardProps) => {
   // pass these fields into the POST card so we don't invoke the get post by ID call every card (might be causing too many callbacks error)
   const { likePost, likeLoading, deletePost, deleteLoading } = usePost({})
+  const [showDescription, setShowDescription] = useState<boolean>(props.showDescription || false)
 
   const { user } = useUser()
-  const ctx = api.useContext()
   const postLikedByUser = () => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
@@ -73,7 +70,7 @@ export const Post = (props: PostWithUser) => {
     <div className="flex flex-col p-4">
 
       {props.metadata?.imageUrl && (
-        <Link href={props.url} target={"_blank"} className="h-48 sm:h-80 w-full overflow-hidden">
+        <Link href={props.url} target={"_blank"} className="h-48 md:h-80 w-full overflow-hidden">
           <img src={props.metadata?.imageUrl.toString()} alt="Post title" className="rounded-t-lg w-full" />
         </Link>
       )}
@@ -88,8 +85,10 @@ export const Post = (props: PostWithUser) => {
           </Link>
           {props.url && !props.metadata?.imageUrl && <PostLink />}
           </div>
-          <span className="font-semibold text-sm">
-            <RichTextDisplay value={props.description}/>
+          <span>
+            {!showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold text-lg" onClick={() => setShowDescription(true)}>Show description... </button> : null}
+            {showDescription && <RichTextDisplay value={props.description}/>}
+            {showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold" onClick={() => setShowDescription(false)}>Hide description... </button> : null}
           </span>
           <div className="flex flex-row space-x-4">
             <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{props.comments.length} comments</span></Link>
