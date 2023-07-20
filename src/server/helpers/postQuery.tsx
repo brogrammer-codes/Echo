@@ -1,18 +1,14 @@
 import { Prisma } from '@prisma/client';
 import { SortOrderVal } from '~/utils/enums';
 
-// interface SortInput {
-//     sortKey?: 'createdAt' | 'likes';
-//     sortValue?: 'asc' | 'desc';
-//   }
+
 interface SortInput {
   sortKey?: string;
-  sortValue?: string;
 }
 
 export const createFindManyPostQuery = (input: SortInput): Prisma.PostFindManyArgs => {
   const postQuery: Prisma.PostFindManyArgs = {
-    take: 10, 
+    take: 10,
     include: {
       likes: true,
       dislikes: true,
@@ -20,7 +16,7 @@ export const createFindManyPostQuery = (input: SortInput): Prisma.PostFindManyAr
     },
   };
 
-  if (input.sortKey ) {
+  if (input.sortKey) {
     switch (input.sortKey) {
       case SortOrderVal.CREATED_ASC:
         postQuery.orderBy = { createdAt: 'desc' };
@@ -29,16 +25,15 @@ export const createFindManyPostQuery = (input: SortInput): Prisma.PostFindManyAr
         postQuery.orderBy = { createdAt: 'asc' };
         break;
       case SortOrderVal.LIKES_ASC:
-        postQuery.orderBy = { likes: { _count: 'asc' } };
-        break;
-      case SortOrderVal.LIKES_DESC:
         postQuery.orderBy = { likes: { _count: 'desc' } };
         break;
-    
+      case SortOrderVal.LIKES_DESC:
+        postQuery.orderBy = { dislikes: { _count: 'desc' } };
+        break;
+
       default:
         break;
     }
   }
-
   return postQuery;
 };

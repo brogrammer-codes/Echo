@@ -1,50 +1,76 @@
 import React from 'react'
-import { boolean } from 'zod'
+import { useUser } from "@clerk/nextjs"
 import { LoadingSpinner } from '../loading'
+import { usePost } from '~/hooks';
+import toast from "react-hot-toast";
+import { RouterOutputs } from "~/utils/api"
 
-type EchoButtonProps = {
-  postLikedByUser: boolean
-  likePost: () => void
-  isLoading: boolean
-  likes: number
-}
+type PostWithUser = RouterOutputs["posts"]["getAll"][number]
+export const EchoButton = (props: PostWithUser) => {
+  const { likes, dislikes, id } = props
+  const { user } = useUser()
+  const { likePost, likeLoading, dislikePost, dislikeLoading } = usePost({})
 
-const displayIcon = (isLoading: boolean, postLikedByUser: boolean) => {
-  if(isLoading) {
-    return ( 
-    <div className="flex justify-center h-8 align-center">
+  const postLikedByUser = !!likes.find((like) => like.userId === user?.id)
+  const postDislikedByUser = !!dislikes.find((dislike) => dislike.userId === user?.id)
 
-      <LoadingSpinner />
-    </div>
-    )
+  const likePostOnClick = () => {
+    if (!user) toast.error("You need to sign in to like a post!")
+    else likePost({ postId: id })
   }
-  if(postLikedByUser) {
+
+  const dislikePostOnClick = () => {
+    if (!user) toast.error("You need to sign in to dislike a post!")
+    else dislikePost({ postId: id })
+  }
+
+  const likeDisplayIcon = () => {
+    if (postLikedByUser) {
+      return (
+        <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z" />
+        </svg>
+      )
+    }
     return (
-      <svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" strokeWidth="1" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684zM13.949 13.684a1 1 0 00-1.898 0l-.184.551a1 1 0 01-.632.633l-.551.183a1 1 0 000 1.898l.551.183a1 1 0 01.633.633l.183.551a1 1 0 001.898 0l.184-.551a1 1 0 01.632-.633l.551-.183a1 1 0 000-1.898l-.551-.184a1 1 0 01-.633-.632l-.183-.551z"></path>
-    </svg>
+      <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     )
   }
-  return (
-    <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
-      strokeLinecap="round"
-      strokeLinejoin="round">
 
-    </path>
-  </svg>
-  )
-}
-
-export const EchoButton = ({ postLikedByUser, likePost, isLoading, likes = 0 }: EchoButtonProps) => {
+  const dislikeDisplayIcon = () => {
+    if (postDislikedByUser) {
+      return (
+        <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.905 12.75a1.25 1.25 0 01-2.5 0v-7.5a1.25 1.25 0 112.5 0v7.5zM8.905 17v1.3c0 .268-.14.526-.395.607A2 2 0 015.905 17c0-.995.182-1.948.514-2.826.204-.54-.166-1.174-.744-1.174h-2.52c-1.242 0-2.26-1.01-2.146-2.247.193-2.08.652-4.082 1.341-5.974C2.752 3.678 3.833 3 5.005 3h3.192a3 3 0 011.342.317l2.733 1.366A3 3 0 0013.613 5h1.292v7h-.963c-.684 0-1.258.482-1.612 1.068a4.012 4.012 0 01-2.165 1.73c-.433.143-.854.386-1.012.814-.16.432-.248.9-.248 1.388z" />
+        </svg>
+      )
+    }
+    return (
+      <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.5 15h2.25m8.024-9.75c.011.05.028.1.052.148.591 1.2.924 2.55.924 3.977a8.96 8.96 0 01-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398C20.613 14.547 19.833 15 19 15h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 00.303-.54m.023-8.25H16.48a4.5 4.5 0 01-1.423-.23l-3.114-1.04a4.5 4.5 0 00-1.423-.23H6.504c-.618 0-1.217.247-1.605.729A11.95 11.95 0 002.25 12c0 .434.023.863.068 1.285C2.427 14.306 3.346 15 4.372 15h3.126c.618 0 .991.724.725 1.282A7.471 7.471 0 007.5 19.5a2.25 2.25 0 002.25 2.25.75.75 0 00.75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 002.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+  if (dislikeLoading || likeLoading) {
+    return (
+      <div className="flex justify-center h-8 align-center">
+        <LoadingSpinner />
+      </div>
+    )
+  }
   return (
     <div className='flex w-fit flex-col'>
-      <button className={`w-9 ${postLikedByUser ? 'text-yellow-500' : 'text-slate-500'}`} onClick={likePost} disabled={isLoading}>
-      {displayIcon(isLoading, postLikedByUser)}
-
-      </button>
-      <span className="font-semibold text-sm">{`${likes} likes`}</span>
+      <div className="flex flex-row space-x-2">
+        <button className={`w-6 ${postLikedByUser ? 'text-yellow-500' : 'text-slate-500'}`} onClick={likePostOnClick} disabled={likeLoading}>
+          {likeDisplayIcon()}
+        </button>
+        <button className={`w-6 ${postDislikedByUser ? 'text-red-500' : 'text-slate-500'}`} onClick={dislikePostOnClick} disabled={dislikeLoading}>
+          {dislikeDisplayIcon()}
+        </button>
+      </div>
+      <span className="font-semibold text-sm">{`Score: ${likes.length - dislikes.length}`}</span>
     </div>
   )
 }

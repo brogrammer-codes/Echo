@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 import { clerkClient, type User } from "@clerk/nextjs/server";
-import type { Post, Prisma, PrismaClient, Comment, Like } from "@prisma/client";
+import type { Post, Prisma, PrismaClient, Comment, Like, Dislike } from "@prisma/client";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import { getUrlMetadata } from "~/server/helpers/urlMetadata";
 import { createFindManyPostQuery } from "~/server/helpers/postQuery";
@@ -28,6 +28,7 @@ const getMappedComments = async (comments: Comment[]) => {
 interface PostPayload extends Post {
   comments?: Comment[],
   likes?: Like[],
+  dislikes?: Dislike[]
 }
 
 const getMappedPosts = async (posts: PostPayload[], ctx: {
@@ -35,7 +36,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
   prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
 }) => {
   return await Promise.all(posts.map(async (post) => {
-    const { likes, comments, authorId } = post
+    const { likes, comments, authorId, dislikes } = post
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { id: post.echoId } });
     // const likes = await ctx.prisma.like.findMany({ where: { postId: post.id } }) || []
     // const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id }, orderBy: { createdAt: 'desc' } }) || []
@@ -54,6 +55,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
       ...post,
       echoName: subEcho?.title,
       likes: likes || [],
+      dislikes: dislikes || [],
       comments: mappedComments,
       user,
       metadata,
@@ -93,6 +95,7 @@ export const postRouter = createTRPCRouter({
         include: {
           likes: true,
           comments: true,
+          dislikes: true,
         },
       };
       const subPosts = await ctx.prisma.post.findUnique(postQuery)
@@ -147,12 +150,31 @@ export const postRouter = createTRPCRouter({
   }),
   likePost: privateProcedure.input(z.object({ postId: z.string().min(1) })).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
-    const postLikes = await ctx.prisma.like.findMany({ where: { postId: input.postId } })
-    const postLike = postLikes.find((post) => post.userId === userId)
-    if (postLike) {
+    const postLike = await ctx.prisma.like.findFirst({ where: { postId: input.postId, userId: userId } })
+    const postDisLike = await ctx.prisma.dislike.findFirst({where: {postId: input.postId, userId: userId}})
+    if(postDisLike) {
+      await ctx.prisma.dislike.delete({where: {id: postDisLike.id}})
+      await ctx.prisma.like.create({ data: { postId: input.postId, userId: userId } })
+    }
+    else if (postLike) {
       await ctx.prisma.like.delete({ where: { id: postLike.id } })
     } else {
       await ctx.prisma.like.create({ data: { postId: input.postId, userId: userId } })
+    }
+  }),
+  dislikePost: privateProcedure.input(z.object({ postId: z.string().min(1) })).mutation(async ({ ctx, input }) => {
+    const userId = ctx.userId
+    const postLike = await ctx.prisma.like.findFirst({ where: { postId: input.postId, userId: userId } })
+    const postDisLike = await ctx.prisma.dislike.findFirst({where: {postId: input.postId, userId: userId}})
+
+    if(postLike) {
+      await ctx.prisma.like.delete({where: {id: postLike.id}})
+      await ctx.prisma.dislike.create({ data: { postId: input.postId, userId: userId } })
+    }
+    else if (postDisLike) {
+      await ctx.prisma.dislike.delete({ where: { id: postDisLike.id } })
+    } else {
+      await ctx.prisma.dislike.create({ data: { postId: input.postId, userId: userId } })
     }
   }),
   getMetadataFromUrl: publicProcedure

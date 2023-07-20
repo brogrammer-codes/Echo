@@ -1,19 +1,14 @@
 import { LoadingPage } from "~/components/loading";
 import { Post } from "~/components/Post";
-import { api, RouterOutputs } from "~/utils/api";
+import { api } from "~/utils/api";
 import type { NextPage, GetStaticProps } from "next";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Head from "next/head";
-import Link from "next/link";
-import { Button, Textarea } from "~/components/atoms";
-import { useCallback, useRef, useState } from "react";
-import toast, { ToastIcon } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useUser } from "@clerk/nextjs";
 import dayjs from "dayjs";
 
 import relativeTime from "dayjs/plugin/relativeTime";
-import Image from "next/image";
-import { EchoButton } from "~/components/molecules";
 import { usePost } from "~/hooks";
 import { CreateCommentWizard } from "~/components/createCommentWizard";
 import { DisplayCommentTree } from "~/components/commentTree";
