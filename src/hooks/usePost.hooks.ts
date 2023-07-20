@@ -26,7 +26,21 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
       void ctx.posts.getAll.invalidate();
       void ctx.posts.getPostById.invalidate()
       void ctx.posts.getPostsByEchoId.invalidate()
-      toast.success("Post updated!")
+      toast.success("Post Liked!")
+    },
+    onError: (e) => {
+      if (e.message) toast.error(e.message)
+      const errorMessage = e.data?.zodError
+      if (errorMessage) showZodError(errorMessage)
+    }
+  })
+  const { mutate: dislikePostMutate, isLoading: dislikeLoading } = api.posts.dislikePost.useMutation({
+    onSuccess: () => {
+      // TODO: Move to correct onSuccess callbacks
+      void ctx.posts.getAll.invalidate();
+      void ctx.posts.getPostById.invalidate()
+      void ctx.posts.getPostsByEchoId.invalidate()
+      toast.success("Post Disliked!")
     },
     onError: (e) => {
       if (e.message) toast.error(e.message)
@@ -82,6 +96,8 @@ export const usePost = ({ onCommentSuccess, postId, onCreatePostSuccess }: usePo
     postLoading,
     likePost: likePostMutate,
     likeLoading,
+    dislikePost: dislikePostMutate,
+    dislikeLoading,
     addComment: addCommentMutate,
     commentLoading,
     createPost,

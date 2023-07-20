@@ -29,6 +29,9 @@ export const Post = (props: PostCardProps) => {
   const postLikedByUser = () => {
     return !!props.likes.find((like) => like.userId === user?.id)
   }
+  const postDisLikedByUser = () => {
+    return !!props.dislikes.find((dislike) => dislike.userId === user?.id)
+  }
   const likePostOnClick = () => {
     if (!user) toast.error("You need to sign in to like a post!")
     else likePost({ postId: props.id })
@@ -97,7 +100,7 @@ export const Post = (props: PostCardProps) => {
           </div>
         </div>
         <div className="flex w-1/6 flex-col">
-          <EchoButton postLikedByUser={postLikedByUser()} likePost={likePostOnClick} isLoading={likeLoading} likes={props.likes.length} />
+          <EchoButton {...props}/>
         </div>
       </div>
     </div>
