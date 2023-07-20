@@ -1,15 +1,11 @@
 import React from 'react'
 import { useUser } from "@clerk/nextjs"
 import { LoadingSpinner } from '../loading'
-import type { Like, Dislike } from "@prisma/client";
 import { usePost } from '~/hooks';
 import toast from "react-hot-toast";
 import { RouterOutputs } from "~/utils/api"
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number]
-
-
-
 export const EchoButton = (props: PostWithUser) => {
   const { likes, dislikes, id } = props
   const { user } = useUser()
@@ -24,18 +20,11 @@ export const EchoButton = (props: PostWithUser) => {
   }
 
   const dislikePostOnClick = () => {
-    if (!user) toast.error("You need to sign in to like a post!")
+    if (!user) toast.error("You need to sign in to dislike a post!")
     else dislikePost({ postId: id })
   }
 
   const likeDisplayIcon = () => {
-    if (likeLoading) {
-      return (
-        <div className="flex justify-center h-8 align-center">
-          <LoadingSpinner />
-        </div>
-      )
-    }
     if (postLikedByUser) {
       return (
         <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -51,13 +40,6 @@ export const EchoButton = (props: PostWithUser) => {
   }
 
   const dislikeDisplayIcon = () => {
-    if (dislikeLoading) {
-      return (
-        <div className="flex justify-center h-8 align-center">
-          <LoadingSpinner />
-        </div>
-      )
-    }
     if (postDislikedByUser) {
       return (
         <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -71,16 +53,22 @@ export const EchoButton = (props: PostWithUser) => {
       </svg>
     )
   }
+  if (dislikeLoading || likeLoading) {
+    return (
+      <div className="flex justify-center h-8 align-center">
+        <LoadingSpinner />
+      </div>
+    )
+  }
   return (
     <div className='flex w-fit flex-col'>
       <div className="flex flex-row space-x-2">
-
-      <button className={`w-6 ${postLikedByUser ? 'text-yellow-500' : 'text-slate-500'}`} onClick={likePostOnClick} disabled={likeLoading}>
-        {likeDisplayIcon()}
-      </button>
-      <button className={`w-6 ${postDislikedByUser ? 'text-red-500' : 'text-slate-500'}`} onClick={dislikePostOnClick} disabled={dislikeLoading}>
-        {dislikeDisplayIcon()}
-      </button>
+        <button className={`w-6 ${postLikedByUser ? 'text-yellow-500' : 'text-slate-500'}`} onClick={likePostOnClick} disabled={likeLoading}>
+          {likeDisplayIcon()}
+        </button>
+        <button className={`w-6 ${postDislikedByUser ? 'text-red-500' : 'text-slate-500'}`} onClick={dislikePostOnClick} disabled={dislikeLoading}>
+          {dislikeDisplayIcon()}
+        </button>
       </div>
       <span className="font-semibold text-sm">{`Score: ${likes.length - dislikes.length}`}</span>
     </div>

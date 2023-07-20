@@ -3,7 +3,6 @@ import Link from "next/link"
 import Image from "next/image";
 
 import { RouterOutputs } from "~/utils/api"
-import toast from "react-hot-toast";
 import { EchoButton } from "./molecules";
 import { usePost } from "~/hooks";
 import dayjs from "dayjs";
@@ -21,21 +20,11 @@ interface PostCardProps extends PostWithUser{
 }
 
 export const Post = (props: PostCardProps) => {
-  // pass these fields into the POST card so we don't invoke the get post by ID call every card (might be causing too many callbacks error)
-  const { likePost, likeLoading, deletePost, deleteLoading } = usePost({})
+  const { deletePost, deleteLoading } = usePost({})
   const [showDescription, setShowDescription] = useState<boolean>(props.showDescription || false)
 
   const { user } = useUser()
-  const postLikedByUser = () => {
-    return !!props.likes.find((like) => like.userId === user?.id)
-  }
-  const postDisLikedByUser = () => {
-    return !!props.dislikes.find((dislike) => dislike.userId === user?.id)
-  }
-  const likePostOnClick = () => {
-    if (!user) toast.error("You need to sign in to like a post!")
-    else likePost({ postId: props.id })
-  }
+
   const PostLink = () => {
     return (
       <Link href={props.url} className="flex w-5 ml-4" target={'_blank'}>
@@ -89,9 +78,9 @@ export const Post = (props: PostCardProps) => {
           {props.url && !props.metadata?.imageUrl && <PostLink />}
           </div>
           <span>
-            {!showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold text-lg" onClick={() => setShowDescription(true)}>Show description... </button> : null}
+            {!showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold text-lg" onClick={() => setShowDescription(true)}>Show more... </button> : null}
             {showDescription && <RichTextDisplay value={props.description}/>}
-            {showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold" onClick={() => setShowDescription(false)}>Hide description... </button> : null}
+            {showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold" onClick={() => setShowDescription(false)}>Show less... </button> : null}
           </span>
           <div className="flex flex-row space-x-4">
             <Link href={`/echo/${props?.echoName ?? ''}/comments/${props?.id ?? ''}`} target="_blank"><span className="text-slate-500 italic font-semibold underline hover:cursor-pointer">{props.comments.length} comments</span></Link>
