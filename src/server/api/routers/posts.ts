@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 import { clerkClient, type User } from "@clerk/nextjs/server";
-import type { Post, Prisma, PrismaClient, Comment, Like, Dislike } from "@prisma/client";
+import type { Post, Prisma, PrismaClient, Comment, Like, Dislike, Tag } from "@prisma/client";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import { getUrlMetadata } from "~/server/helpers/urlMetadata";
 import { createFindManyPostQuery } from "~/server/helpers/postQuery";
@@ -28,7 +28,8 @@ const getMappedComments = async (comments: Comment[]) => {
 interface PostPayload extends Post {
   comments?: Comment[],
   likes?: Like[],
-  dislikes?: Dislike[]
+  dislikes?: Dislike[],
+  tags?: Tag[]
 }
 
 const getMappedPosts = async (posts: PostPayload[], ctx: {
@@ -36,7 +37,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
   prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
 }) => {
   return await Promise.all(posts.map(async (post) => {
-    const { likes, comments, authorId, dislikes } = post
+    const { likes, comments, authorId, dislikes, tags } = post
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { id: post.echoId } });
     // const likes = await ctx.prisma.like.findMany({ where: { postId: post.id } }) || []
     // const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id }, orderBy: { createdAt: 'desc' } }) || []
@@ -58,6 +59,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
       dislikes: dislikes || [],
       comments: mappedComments,
       user,
+      tags: tags || [],
       metadata,
     };
   }));

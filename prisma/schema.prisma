@@ -21,12 +21,24 @@ model Post {
     authorId    String
     echo        SubEcho   @relation(fields: [echoId], references: [id])
     echoId      String
+    tags        Tag[]
     likes       Like[]
     dislikes    Dislike[]
     comments    Comment[]
 
     @@index([authorId])
     @@index([echoId])
+}
+
+model Tag {
+    id        String   @id @default(cuid())
+    post      Post     @relation(fields: [postId], references: [id])
+    text      String
+    postId    String
+    userId    String
+    createdAt DateTime @default(now())
+
+    @@index([postId])
 }
 
 model Like {

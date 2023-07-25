@@ -68,7 +68,7 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
   return (
     <div className="flex w-full gap-3 m-2 p-1">
       <div className="w-full">
-        <div className="block flex flex-col space-y-3 w-full">
+        <div className="flex flex-col space-y-3 w-full">
           <span>Post title</span>
           <Input inputRef={postTitle} placeholder="Check out this neat post about..." />
           <span>URL you are sharing a link</span>
