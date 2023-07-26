@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
+import { Button } from "./atoms";
 
 export const Header = () => {
   const { isSignedIn, user } = useUser();
@@ -83,9 +84,7 @@ export const Header = () => {
               />
             ) : (
               <SignInButton mode="modal">
-                <button className="btn rounded-md bg-slate-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600">
-                  Sign in
-                </button>
+                <Button buttonText="Sign In"/>
               </SignInButton>
             )}
           </div>
@@ -128,7 +127,9 @@ export const Header = () => {
                 showName
               />
             ) : (
-              <SignInButton />
+              <SignInButton mode="modal">
+                <Button buttonText="Sign In"/>
+              </SignInButton>
             )}
           </div>
           <div className="flex flex-col space-y-5 px-3 py-1 text-lg">
