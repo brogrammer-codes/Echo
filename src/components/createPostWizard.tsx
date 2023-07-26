@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useRef, useState, useEffect } from "react";
 import { Button, Input, RichText } from "~/components/atoms";
-import { api, RouterOutputs } from "~/utils/api"
+import { api, type RouterOutputs } from "~/utils/api"
 import { usePost } from "~/hooks";
 import { LoadingPage } from "./loading";
 import { useRouter } from 'next/router';
