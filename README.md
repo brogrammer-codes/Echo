@@ -55,3 +55,14 @@ Contributions to Echo are welcome! If you have any bug fixes, improvements, or n
      - CI build in GitHub, removed TypeChecks from Vercel
      - Non Logged in users cannot access new post button
      - Fixed imports
+- (2023-26-07)
+  - Added React Hook Form to create post wizard, still need to fully integrate it. 
+  - Added Tags to a post and to the create post wizard
+    - Updated router to map over tags when creating a post
+    - Added tags to the response 
+  - Added Tag Atom to display tags in a post
+    - TODO: Need to add remove tag logic 
+  - Updated sort bar to a dropdown select.
+    - TODO: Move options to an array to map over inside select
+  - Updated sign in button
+  - Updated create post button

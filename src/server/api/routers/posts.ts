@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 import { clerkClient, type User } from "@clerk/nextjs/server";
-import type { Post, Prisma, PrismaClient, Comment, Like, Dislike } from "@prisma/client";
+import type { Post, Prisma, PrismaClient, Comment, Like, Dislike, Tag } from "@prisma/client";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import { getUrlMetadata } from "~/server/helpers/urlMetadata";
 import { createFindManyPostQuery } from "~/server/helpers/postQuery";
@@ -28,7 +28,8 @@ const getMappedComments = async (comments: Comment[]) => {
 interface PostPayload extends Post {
   comments?: Comment[],
   likes?: Like[],
-  dislikes?: Dislike[]
+  dislikes?: Dislike[],
+  tags?: Tag[]
 }
 
 const getMappedPosts = async (posts: PostPayload[], ctx: {
@@ -36,7 +37,7 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
   prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
 }) => {
   return await Promise.all(posts.map(async (post) => {
-    const { likes, comments, authorId, dislikes } = post
+    const { likes, comments, authorId, dislikes, tags } = post
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { id: post.echoId } });
     // const likes = await ctx.prisma.like.findMany({ where: { postId: post.id } }) || []
     // const comments = await ctx.prisma.comment.findMany({ where: { postId: post.id }, orderBy: { createdAt: 'desc' } }) || []
@@ -58,16 +59,17 @@ const getMappedPosts = async (posts: PostPayload[], ctx: {
       dislikes: dislikes || [],
       comments: mappedComments,
       user,
+      tags: tags || [],
       metadata,
     };
   }));
 }
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.input(z.object({ sortKey: z.string().min(1).optional()})).query(async ({ ctx, input }) => {
-    const postQuery = createFindManyPostQuery({...input})
+  getAll: publicProcedure.input(z.object({ sortKey: z.string().min(1).optional() })).query(async ({ ctx, input }) => {
+    const postQuery = createFindManyPostQuery({ ...input })
 
-    const posts = await ctx.prisma.post.findMany({...postQuery});
+    const posts = await ctx.prisma.post.findMany({ ...postQuery });
     if (!posts) throw new TRPCError({ code: "NOT_FOUND" });
     const mappedPosts = getMappedPosts(posts, ctx)
     return mappedPosts
@@ -75,13 +77,13 @@ export const postRouter = createTRPCRouter({
   getPostsByEchoId: publicProcedure
     .input(z.object({ echoId: z.string().min(1), sortKey: z.string().min(1).optional() }))
     .query(async ({ ctx, input }) => {
-      const postQuery = createFindManyPostQuery({...input})
+      const postQuery = createFindManyPostQuery({ ...input })
 
       const subPosts = await ctx.prisma.post.findMany({
-        where: { echoId: input.echoId }, take: 100, ...postQuery})
+        where: { echoId: input.echoId }, take: 100, ...postQuery
+      })
 
       if (!subPosts) throw new TRPCError({ code: "NOT_FOUND" });
-      // console.log("map: ", subPosts[0]);
       const mappedPosts = getMappedPosts(subPosts, ctx)
       return mappedPosts
     }),
@@ -96,6 +98,7 @@ export const postRouter = createTRPCRouter({
           likes: true,
           comments: true,
           dislikes: true,
+          tags: true
         },
       };
       const subPosts = await ctx.prisma.post.findUnique(postQuery)
@@ -107,17 +110,21 @@ export const postRouter = createTRPCRouter({
     title: z.string().min(1).max(100),
     url: z.string().min(0).url("Enter a URL").max(255).or(z.literal('')),
     echo: z.string().min(1).max(50),
-    description: z.string().max(5000).optional()
+    description: z.string().max(5000).optional(),
+    tags: z.string().array().max(6)
   }
   )).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
-    const {success} = await ratelimit.limit(userId)
-    if(!success) throw new TRPCError({code: 'TOO_MANY_REQUESTS'})
-    const { title, url = '', echo, description = '' } = input
+    const { success } = await ratelimit.limit(userId)
+    if (!success) throw new TRPCError({ code: 'TOO_MANY_REQUESTS' })
+    const { title, url = '', echo, description = '', tags = [] } = input
     const subEcho = await ctx.prisma.subEcho.findUnique({ where: { title: echo } });
     if (!subEcho) throw new TRPCError({ code: "NOT_FOUND" });
     const post = await ctx.prisma.post.create({ data: { title, url, echoId: subEcho.id, description, authorId: userId } })
-    return {...post, echoName: input.echo}
+    await Promise.all(tags.map(async (tag) => {
+      await ctx.prisma.tag.create({data: {text: tag, postId: post.id, userId}})
+    }))
+    return { ...post, echoName: input.echo }
 
   }),
   deletePost: privateProcedure.input(z.object({ id: z.string().min(1).max(255) })).mutation(async ({ ctx, input }) => {
@@ -151,9 +158,9 @@ export const postRouter = createTRPCRouter({
   likePost: privateProcedure.input(z.object({ postId: z.string().min(1) })).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
     const postLike = await ctx.prisma.like.findFirst({ where: { postId: input.postId, userId: userId } })
-    const postDisLike = await ctx.prisma.dislike.findFirst({where: {postId: input.postId, userId: userId}})
-    if(postDisLike) {
-      await ctx.prisma.dislike.delete({where: {id: postDisLike.id}})
+    const postDisLike = await ctx.prisma.dislike.findFirst({ where: { postId: input.postId, userId: userId } })
+    if (postDisLike) {
+      await ctx.prisma.dislike.delete({ where: { id: postDisLike.id } })
       await ctx.prisma.like.create({ data: { postId: input.postId, userId: userId } })
     }
     else if (postLike) {
@@ -165,10 +172,10 @@ export const postRouter = createTRPCRouter({
   dislikePost: privateProcedure.input(z.object({ postId: z.string().min(1) })).mutation(async ({ ctx, input }) => {
     const userId = ctx.userId
     const postLike = await ctx.prisma.like.findFirst({ where: { postId: input.postId, userId: userId } })
-    const postDisLike = await ctx.prisma.dislike.findFirst({where: {postId: input.postId, userId: userId}})
+    const postDisLike = await ctx.prisma.dislike.findFirst({ where: { postId: input.postId, userId: userId } })
 
-    if(postLike) {
-      await ctx.prisma.like.delete({where: {id: postLike.id}})
+    if (postLike) {
+      await ctx.prisma.like.delete({ where: { id: postLike.id } })
       await ctx.prisma.dislike.create({ data: { postId: input.postId, userId: userId } })
     }
     else if (postDisLike) {

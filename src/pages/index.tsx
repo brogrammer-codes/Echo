@@ -42,7 +42,7 @@ export default function Home() {
       <div className="flex flex-col w-full md:w-2/3 p-2">
         <SortPostBar order={orderKey} setOrder={setOrderKey} />
         <div className="block sm:hidden my-3 p-2">
-          {user && <Link className="text-2xl font-bold bg-slate-400 w-full rounded p-1 my-2" href={'/new'}>Create Post</Link>}
+          {user && <Link className="text-2xl font-bold bg-slate-400 hover:bg-green-800 w-full rounded p-1 px-3 my-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600" href={'/new'}>Create Post</Link>}
         </div>
         {
           (!posts || allPostsError) ? (<div>Error Loading Feed, please refresh page. </div>) : posts.map((post) => <Post key={post.id} {...post} />)
