@@ -77,6 +77,7 @@ export const Post = (props: PostCardProps) => {
           </Link>
           {props.url && !props.metadata?.imageUrl && <PostLink />}
           </div>
+          {props.tags.length}
           <span>
             {!showDescription ? <button className="bg-slate-600 rounded italic p-1 px-2 font-semibold text-lg" onClick={() => setShowDescription(true)}>Show more... </button> : null}
             {showDescription && <RichTextDisplay value={props.description}/>}

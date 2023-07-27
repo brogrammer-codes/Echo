@@ -15,8 +15,8 @@ interface CreatePostWizardProps {
 type CreatePostInputs = {
   title: string;
   url: string;
-  echo: string,
-  tags: string,
+  echo: string;
+  tags: string;
 };
 const style = {
   input:
@@ -79,28 +79,28 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
     }
   };
 
-  const togglePreview = () => {
+  const togglePreview = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    event.preventDefault();
     setShowPreview((prev) => !prev);
   };
 
   const submitForm = (data: CreatePostInputs) => {
-    if(postEcho) {
+    if (postEcho) {
+      const tags =
+        data.tags.trim() === ""
+          ? []
+          : data.tags.split(",").map((tag) => tag.trim().toLowerCase());      
 
       createPost({
-        title: data.title, 
-        url: data.url, 
+        title: data.title,
+        url: data.url,
         echo: postEcho,
         description,
+        tags
       })
     }
-    // if (postTitle.current && postUrl.current) {
-    //   createPost({
-    //     title: postTitle.current.value,
-    //     url: postUrl.current.value,
-    //     echo: postEcho,
-    //     description,
-    //   });
-    // }
   };
   return (
     <div className="m-2 flex w-full gap-3 p-1">
@@ -112,7 +112,14 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
           }}
         >
           <div className="flex w-full flex-col space-y-3">
-            <label>Post title {errors.title && <span className="text-red-800 font-bold text-lg">Enter a title</span>}</label>
+            <label>
+              Post title{" "}
+              {errors.title && (
+                <span className="text-lg font-bold text-red-800">
+                  Enter a title
+                </span>
+              )}
+            </label>
             <input
               className={style.input}
               placeholder="Check out this neat post about..."
@@ -149,7 +156,12 @@ export const CreatePostWizard = (props: CreatePostWizardProps) => {
             ) : (
               <SubEchoSearch selectEcho={(name) => setPostEcho(name)} />
             )}
-
+            <label className="text-sm">{`Add some tags so you can find it easier (white space and casing will be removed)`}</label>
+            <input
+              className={style.input}
+              placeholder="tag_1,tag_2"
+              {...register("tags")}
+            />
             <Button
               buttonText={
                 createPostLoading ? "Submitting Post..." : "Submit Post"
