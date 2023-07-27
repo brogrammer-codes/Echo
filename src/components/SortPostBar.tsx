@@ -49,48 +49,4 @@ export const SortPostBar = ({ order, setOrder }: SortPostBarProps) => {
     </div>
   );
 
-  return (
-    <div className="flex flex-row space-x-2">
-      <button
-        onClick={() => {
-          setOrder(SortOrderVal.LIKES_DESC);
-        }}
-        className={`rounded bg-slate-500 p-2 text-lg font-semibold ${
-          order === SortOrderVal.LIKES_DESC ? "bg-slate-700" : ""
-        }`}
-      >
-        Least Liked First
-      </button>
-      <button
-        onClick={() => {
-          setOrder(SortOrderVal.LIKES_ASC);
-        }}
-        className={`rounded bg-slate-500 p-2 text-lg font-semibold ${
-          order === SortOrderVal.LIKES_ASC ? "bg-slate-700" : ""
-        }`}
-      >
-        Most Liked First
-      </button>
-      <button
-        onClick={() => {
-          setOrder(SortOrderVal.CREATED_DESC);
-        }}
-        className={`rounded bg-slate-500 p-2 text-lg font-semibold ${
-          order === SortOrderVal.CREATED_DESC ? "bg-slate-700" : ""
-        }`}
-      >
-        Oldest First
-      </button>
-      <button
-        onClick={() => {
-          setOrder(SortOrderVal.CREATED_ASC);
-        }}
-        className={`rounded bg-slate-500 p-2 text-lg font-semibold ${
-          order === SortOrderVal.CREATED_ASC ? "bg-slate-700" : ""
-        }`}
-      >
-        Newest First
-      </button>
-    </div>
-  );
 };

@@ -136,7 +136,7 @@ export const Post = (props: PostCardProps) => {
             </Link>
             {props.url && !props.metadata?.imageUrl && <PostLink />}
           </div>
-          <div className="flex flex-row space-x-3 h-fit">
+          <div className="flex flex-row space-x-3">
             {props.tags.map((tag) => (
               <Tag key={tag.id} text={tag.text} />
             ))}
